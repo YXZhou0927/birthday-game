@@ -1,0 +1,7 @@
+# Keep personal full-res source photos out of git
+source-refs/
+*.jpg
+*.jpeg
+.DS_Store
+.env
+.env.*
