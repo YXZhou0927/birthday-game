@@ -7,38 +7,87 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta name="theme-color" content="#000000" />
-    <title>Memory Reel</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Ann Birthday Game 2026</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <main id="stage" class="stage" aria-live="polite">
-      <button
-        id="play"
-        class="play"
-        type="button"
-        aria-label="Play"
-        hidden
-      >
+      <!-- Play gate -->
+      <button id="play" class="play" type="button" aria-label="播放" hidden>
         <span class="play__ring" aria-hidden="true">
           <span class="play__triangle"></span>
         </span>
       </button>
 
+      <!-- Story text -->
       <p id="line" class="line" hidden></p>
+      <p id="prompt" class="prompt" hidden></p>
+      <p id="dialogue" class="dialogue" hidden></p>
 
+      <!-- Short film / multi-frame reel -->
       <div id="reel" class="reel" hidden aria-hidden="true">
-        <div id="reel-strip" class="reel__strip">
-          <img src="pixel/01.png" alt="" draggable="false" />
-          <img src="pixel/02.png" alt="" draggable="false" />
-          <img src="pixel/03.png" alt="" draggable="false" />
-          <img src="pixel/04.png" alt="" draggable="false" />
-          <img src="pixel/05.png" alt="" draggable="false" />
-          <img src="pixel/06.png" alt="" draggable="false" />
-          <img src="pixel/07.png" alt="" draggable="false" />
-          <img src="pixel/08.png" alt="" draggable="false" />
+        <div id="reel-strip" class="reel__strip"></div>
+      </div>
+
+      <!-- Approach / still image plane -->
+      <div id="scene" class="scene" hidden aria-hidden="true">
+        <img id="scene-img" class="scene__img" alt="" draggable="false" />
+      </div>
+
+      <!-- Confirm / GPS gate -->
+      <div id="gate" class="gate" hidden>
+        <button id="confirm" class="confirm" type="button"></button>
+        <p id="gate-hint" class="gate__hint" hidden></p>
+      </div>
+
+      <!-- Heart fragment overlay -->
+      <div id="heart-overlay" class="heart-overlay" hidden aria-hidden="true">
+        <div class="heart-stage">
+          <svg
+            class="heart-svg"
+            viewBox="0 0 100 100"
+            role="img"
+            aria-label="愛心碎片"
+          >
+            <defs>
+              <clipPath id="heart-clip">
+                <path
+                  d="M50 88 C20 65 8 48 8 32 C8 18 18 10 30 10 C38 10 45 14 50 22 C55 14 62 10 70 10 C82 10 92 18 92 32 C92 48 80 65 50 88 Z"
+                />
+              </clipPath>
+            </defs>
+            <g clip-path="url(#heart-clip)">
+              <rect class="heart-q heart-q--1" x="0" y="0" width="50" height="50" />
+              <rect class="heart-q heart-q--2" x="50" y="0" width="50" height="50" />
+              <rect class="heart-q heart-q--3" x="0" y="50" width="50" height="50" />
+              <rect class="heart-q heart-q--4" x="50" y="50" width="50" height="50" />
+            </g>
+            <path
+              class="heart-outline"
+              d="M50 88 C20 65 8 48 8 32 C8 18 18 10 30 10 C38 10 45 14 50 22 C55 14 62 10 70 10 C82 10 92 18 92 32 C92 48 80 65 50 88 Z"
+              fill="none"
+            />
+            <line class="heart-cut" x1="50" y1="10" x2="50" y2="88" />
+            <line class="heart-cut" x1="8" y1="50" x2="92" y2="50" />
+          </svg>
+          <p id="heart-label" class="heart-label">1 / 4</p>
         </div>
       </div>
+
+      <!-- Tap catcher for advancing story -->
+      <button
+        id="tap"
+        class="tap"
+        type="button"
+        aria-label="繼續"
+        hidden
+      ></button>
+
+      <!-- Debug HUD -->
+      <aside id="debug" class="debug" hidden></aside>
     </main>
-    <script src="main.js"></script>
+
+    <script type="module" src="js/main.js"></script>
   </body>
 </html>
