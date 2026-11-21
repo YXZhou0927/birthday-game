@@ -18,6 +18,19 @@ python3 -m http.server 5173 --bind 127.0.0.1
 
 NFC 貼紙可直接連到帶 `?level=` 的網址。
 
+## GitHub Pages（repo 可維持 private）
+
+程式碼可用 `.github/workflows/pages.yml` 自動部署。**repo 不必改成 public**，但個人帳號若是 GitHub Free，private repo 通常**無法啟用 Pages**，需 [GitHub Pro](https://github.com/pricing)（或把 repo 改 public）。
+
+在有 Pages 權限的前提下，於 GitHub 手動開一次：
+
+1. **Settings → Pages**
+2. Build and deployment → Source 選 **GitHub Actions**
+3. 合併／推到 `main` 後等 Actions 跑完
+4. 同一頁會出現網址，例如 `https://<user>.github.io/birthday-game/`
+
+站台網址本身仍可被知道連結的人開啟（適合 NFC）；這與「原始碼 repo 是否 private」是分開的。家裡測可加 `?skipGps=1`。
+
 ## 架構
 
 ```
