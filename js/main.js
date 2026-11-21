@@ -25,9 +25,9 @@ async function boot() {
     console.warn(`[main] unknown level "${level}", falling back to ${script.id}`);
   }
 
-  // Warm a few known frames so the first reel feels snappy
   const warm = (script.steps ?? [])
     .flatMap((s) => s.frames ?? (s.src ? [s.src] : []))
+    .filter((s) => s && !String(s).startsWith("vista:"))
     .slice(0, 12);
   await Promise.all(
     warm.map(
@@ -45,6 +45,4 @@ async function boot() {
   await engine.run(script);
 }
 
-boot().catch((err) => {
-  console.error(err);
-});
+boot().catch((err) => console.error(err));

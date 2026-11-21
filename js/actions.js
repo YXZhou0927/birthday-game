@@ -2,6 +2,9 @@
 
 import { distanceMeters, readPosition, watchUntilNear } from "./geo.js";
 import { playHeartCollect } from "./heart.js";
+import { fillTemplate, loadMemory, saveMemory } from "./memory.js";
+import { mountVista, clearVista, buildVista } from "./vistas.js";
+import { startBgm } from "./bgm.js";
 
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -20,25 +23,36 @@ async function animateTravel(el, from, to, duration, apply) {
   });
 }
 
+function t(text) {
+  return fillTemplate(text, loadMemory());
+}
+
 export function createActions(ui, ctx) {
-  const { els, wait, show, hide, hideAllText, waitForTap, setText, preloadImages } =
-    ui;
+  const {
+    els,
+    wait,
+    show,
+    hide,
+    hideAllText,
+    waitForTap,
+    setText,
+    preloadImages,
+  } = ui;
 
   return {
-    /** Auto or tap narration (centered). */
     async narration(step) {
-      await setText(els.line, step.text, {
+      await setText(els.line, t(step.text), {
         fade: step.fade ?? 900,
         holdMs: step.holdMs ?? null,
       });
       if (step.holdMs != null) await hide(els.line, step.fade ?? 900);
     },
 
-    /** Quoted dialogue line. */
     async dialogue(step) {
+      const body = t(step.text);
       const text = step.speaker
-        ? `${step.speaker}\n「${step.text}」`
-        : `「${step.text}」`;
+        ? `${step.speaker}\n「${body}」`
+        : `「${body}」`;
       await setText(els.dialogue, text, {
         fade: step.fade ?? 900,
         holdMs: step.holdMs ?? null,
@@ -46,45 +60,48 @@ export function createActions(ui, ctx) {
       if (step.holdMs != null) await hide(els.dialogue, step.fade ?? 900);
     },
 
-    /** Emphasized stage direction / quest prompt. */
     async prompt(step) {
-      await setText(els.prompt, step.text, {
+      await setText(els.prompt, t(step.text), {
         fade: step.fade ?? 900,
         holdMs: step.holdMs ?? null,
       });
       if (step.holdMs != null) await hide(els.prompt, step.fade ?? 900);
     },
 
-    /** Multi-frame vertical “short film” reel (from the original demo). */
     async reel(step) {
       await hideAllText(700);
       const frames = step.frames ?? [];
-      await preloadImages(frames);
+      await preloadImages(frames.filter((f) => !String(f).startsWith("vista:")));
 
       els.strip.innerHTML = "";
       for (const src of frames) {
-        const img = document.createElement("img");
-        img.src = src;
-        img.alt = "";
-        img.draggable = false;
-        els.strip.appendChild(img);
+        if (String(src).startsWith("vista:")) {
+          const wrap = document.createElement("div");
+          wrap.className = "reel__vista";
+          const node = buildVista(String(src).slice(6), loadMemory());
+          if (node) wrap.appendChild(node);
+          els.strip.appendChild(wrap);
+        } else {
+          const img = document.createElement("img");
+          img.src = src;
+          img.alt = "";
+          img.draggable = false;
+          els.strip.appendChild(img);
+        }
       }
       els.strip.style.transform = "translate3d(0, 0, 0)";
-
       await show(els.reel, step.fadeIn ?? 1200);
 
       const viewport = els.reel.clientHeight;
       const total = els.strip.scrollHeight;
       const travel = Math.max(0, total - viewport);
       const duration = step.duration ?? 15000;
-
       const start = performance.now();
       await new Promise((resolve) => {
         const tick = (now) => {
-          const t = Math.min(1, (now - start) / duration);
-          const eased = easeInOut(t);
-          els.strip.style.transform = `translate3d(0, ${-travel * eased}px, 0)`;
-          if (t < 1) requestAnimationFrame(tick);
+          const p = Math.min(1, (now - start) / duration);
+          els.strip.style.transform = `translate3d(0, ${-travel * easeInOut(p)}px, 0)`;
+          if (p < 1) requestAnimationFrame(tick);
           else resolve();
         };
         requestAnimationFrame(tick);
@@ -96,7 +113,6 @@ export function createActions(ui, ctx) {
       els.strip.innerHTML = "";
     },
 
-    /** Fade in a still (optionally stay under later steps). */
     async image(step) {
       await preloadImages([step.src]);
       els.sceneImg.src = step.src;
@@ -115,7 +131,6 @@ export function createActions(ui, ctx) {
       }
     },
 
-    /** First-person walk: image grows from far → near. */
     async approach(step) {
       await hideAllText(600);
       await preloadImages([step.src]);
@@ -125,33 +140,124 @@ export function createActions(ui, ctx) {
       const to = step.toScale ?? 1.05;
       els.sceneImg.style.transform = `scale(${from}) translateY(8%)`;
       await show(els.scene, step.fadeIn ?? 800);
-
-      await animateTravel(
-        els.sceneImg,
-        from,
-        to,
-        step.duration ?? 4200,
-        (scale, t) => {
-          const bob = Math.sin(t * Math.PI * 6) * 1.2;
-          els.sceneImg.style.transform = `scale(${scale}) translateY(${8 - t * 8 + bob}%)`;
-        }
-      );
-
+      await animateTravel(els.sceneImg, from, to, step.duration ?? 4200, (scale, p) => {
+        const bob = Math.sin(p * Math.PI * 6) * 1.2;
+        els.sceneImg.style.transform = `scale(${scale}) translateY(${8 - p * 8 + bob}%)`;
+      });
       await wait(step.holdEnd ?? 600);
-      if (step.clear !== false) {
-        await hide(els.scene, step.fadeOut ?? 900);
-      }
+      if (step.clear !== false) await hide(els.scene, step.fadeOut ?? 900);
     },
 
-    /**
-     * Confirm gate.
-     * - no gps → manual confirm
-     * - gps → must be within radius (or debug skip)
-     */
+    /** Mount a CSS/HTML interactive vista under the text layers. */
+    async vista(step) {
+      const mem = loadMemory();
+      const props = { ...mem, ...(step.props || {}) };
+      if (step.clear) {
+        await clearVista(els.vista);
+        return;
+      }
+      mountVista(els.vista, step.id, props);
+      if (step.holdMs != null) {
+        await wait(step.holdMs);
+        if (step.autoClear) await clearVista(els.vista);
+        return;
+      }
+      if (step.waitTap !== false) {
+        await waitForTap();
+      }
+      if (step.autoClear) await clearVista(els.vista);
+    },
+
+    /** Free-text input → saved into memory[storeAs]. */
+    async input(step) {
+      await hideAllText(500);
+      els.inputLabel.textContent = t(step.label ?? "請輸入");
+      els.inputField.value = "";
+      els.inputField.placeholder = step.placeholder ?? "";
+      els.inputSubmit.textContent = step.button ?? "確認";
+      await show(els.inputForm, 500);
+      els.inputField.focus();
+
+      const value = await new Promise((resolve) => {
+        const onSubmit = (e) => {
+          e.preventDefault();
+          const v = els.inputField.value.trim();
+          if (!v) {
+            els.inputField.classList.add("is-shake");
+            setTimeout(() => els.inputField.classList.remove("is-shake"), 400);
+            return;
+          }
+          els.inputForm.removeEventListener("submit", onSubmit);
+          resolve(v);
+        };
+        els.inputForm.addEventListener("submit", onSubmit);
+      });
+
+      const key = step.storeAs || "dollName";
+      saveMemory({ [key]: value });
+      await hide(els.inputForm, 500);
+    },
+
+    /** Single or multi choice → memory[storeAs]. */
+    async choose(step) {
+      await hideAllText(500);
+      const multi = step.multi !== false;
+      els.chooserPrompt.textContent = t(step.prompt ?? "請選擇");
+      els.chooserOptions.innerHTML = "";
+      const selected = new Set();
+
+      for (const opt of step.options ?? []) {
+        const id = typeof opt === "string" ? opt : opt.id;
+        const label = typeof opt === "string" ? opt : opt.label;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = label;
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (multi) {
+            if (selected.has(id)) {
+              selected.delete(id);
+              btn.classList.remove("is-on");
+            } else {
+              selected.add(id);
+              btn.classList.add("is-on");
+            }
+          } else {
+            selected.clear();
+            els.chooserOptions
+              .querySelectorAll(".chip")
+              .forEach((c) => c.classList.remove("is-on"));
+            selected.add(id);
+            btn.classList.add("is-on");
+          }
+          els.chooserSubmit.disabled = selected.size < (step.min ?? 1);
+        });
+        els.chooserOptions.appendChild(btn);
+      }
+
+      els.chooserSubmit.textContent = step.button ?? "選好了！";
+      els.chooserSubmit.disabled = true;
+      await show(els.chooser, 500);
+
+      await new Promise((resolve) => {
+        const onDone = () => {
+          if (els.chooserSubmit.disabled) return;
+          els.chooserSubmit.removeEventListener("click", onDone);
+          const list = [...selected];
+          const key = step.storeAs || "gifts";
+          saveMemory({ [key]: list });
+          resolve();
+        };
+        els.chooserSubmit.addEventListener("click", onDone);
+      });
+
+      await hide(els.chooser, 500);
+    },
+
     async confirm(step) {
       await hideAllText(600);
-
-      els.confirm.textContent = step.label ?? "確認";
+      els.confirm.textContent = t(step.label ?? "確認");
       els.confirm.disabled = false;
       els.gateHint.hidden = true;
       els.gateHint.textContent = "";
@@ -178,22 +284,24 @@ export function createActions(ui, ctx) {
         return;
       }
 
-      // GPS gate
       els.confirm.disabled = true;
       els.gateHint.hidden = false;
       els.gateHint.textContent = step.waitingText ?? "正在確認你的位置…";
-
       const target = { lat: gps.lat, lng: gps.lng };
       const radius = gps.radiusMeters ?? 100;
 
       const updateHint = ({ here, dist, near, error }) => {
         if (ctx.debug) {
           const d =
-            dist == null ? "—" : dist < 1000 ? `${Math.round(dist)} m` : `${(dist / 1000).toFixed(1)} km`;
+            dist == null
+              ? "—"
+              : dist < 1000
+                ? `${Math.round(dist)} m`
+                : `${(dist / 1000).toFixed(1)} km`;
           ctx.setDebug(
-            `GPS target ${target.lat.toFixed(5)}, ${target.lng.toFixed(5)}\n` +
-              `you: ${here ? `${here.lat.toFixed(5)}, ${here.lng.toFixed(5)} (±${Math.round(here.accuracy || 0)}m)` : "n/a"}\n` +
-              `dist: ${d} / ${radius} m${near ? " ✓" : ""}`
+            `GPS ${target.lat.toFixed(5)}, ${target.lng.toFixed(5)}\n` +
+              `you: ${here ? `${here.lat.toFixed(5)}, ${here.lng.toFixed(5)}` : "n/a"}\n` +
+              `dist: ${d} / ${radius}m${near ? " ✓" : ""}`
           );
         }
         if (error) {
@@ -215,21 +323,16 @@ export function createActions(ui, ctx) {
       };
 
       if (ctx.skipGps) {
-        els.gateHint.textContent = "（debug）已略過 GPS，可直接確認";
+        els.gateHint.textContent = "（試玩）已略過 GPS，可直接確認";
         els.confirm.disabled = false;
       } else {
-        const { promise, stop } = watchUntilNear(target, radius, {
-          onUpdate: updateHint,
-        });
+        const { stop } = watchUntilNear(target, radius, { onUpdate: updateHint });
         stopWatch = stop;
-        // Also allow immediate check from a one-shot if already near
-        promise.catch(() => {});
       }
 
       await new Promise((resolve) => {
         const onClick = async () => {
           if (els.confirm.disabled) return;
-
           if (!ctx.skipGps && gps) {
             const here = await readPosition();
             if (!here || distanceMeters(target, here) > radius) {
@@ -239,7 +342,6 @@ export function createActions(ui, ctx) {
               return;
             }
           }
-
           els.confirm.removeEventListener("click", onClick);
           await finish();
           resolve();
@@ -248,7 +350,6 @@ export function createActions(ui, ctx) {
       });
     },
 
-    /** Collect a heart quarter (piece 1–4). */
     async heart(step) {
       await hideAllText(500);
       await playHeartCollect(ui, step.piece ?? 1);
@@ -258,24 +359,124 @@ export function createActions(ui, ctx) {
       await wait(step.ms ?? 800);
     },
 
-    /** Clear lingering scene / text layers. */
     async clear(step) {
       await hideAllText(step.fade ?? 600);
       if (!els.scene.hidden) await hide(els.scene, step.fade ?? 600);
       if (!els.reel.hidden) await hide(els.reel, step.fade ?? 600);
+      if (!els.vista.hidden) await clearVista(els.vista);
     },
 
-    /** Jump to another level (NFC-style deep link). */
+    async bgm() {
+      await startBgm();
+      els.mute.hidden = false;
+      els.mute.classList.add("is-visible");
+    },
+
+    /**
+     * Stairs finale: complete heart → future room → cake → blessing.
+     * Expects vista future-room already mounted or mounts it.
+     */
+    async finale(step) {
+      await hideAllText(400);
+      mountVista(els.vista, "future-room");
+      await wait(600);
+
+      // Glow complete heart then morph
+      const heart = els.vista.querySelector("#future-heart");
+      const cake = els.vista.querySelector("#future-cake");
+      const mom = els.vista.querySelector("#future-mom");
+      heart?.classList.add("is-complete");
+      await wait(1400);
+      heart?.classList.add("is-shrink");
+      await wait(700);
+      if (heart) heart.hidden = true;
+      if (cake) {
+        cake.hidden = false;
+        cake.classList.add("is-pop");
+      }
+      await wait(900);
+
+      await setText(
+        els.dialogue,
+        `「${t(step.kidLine || "媽媽——來吃蛋糕了！")}」`,
+        { fade: 800 }
+      );
+      await hide(els.dialogue, 600);
+
+      mom?.classList.add("is-leaving");
+      await setText(
+        els.line,
+        t(
+          step.blessing ||
+            "安安，願妳每一歲都像今天一樣被溫柔包圍。記得回家吃生日蛋糕喔。"
+        ),
+        { fade: 900 }
+      );
+      await hide(els.line, 700);
+      await wait(600);
+      await clearVista(els.vista);
+    },
+
+    /** Epilogue cinematic: party → present hug → phone → voucher. */
+    async epilogueShow() {
+      await hideAllText(400);
+      mountVista(els.vista, "epilogue");
+      await wait(1200);
+      await setText(els.line, "客廳裡熱鬧極了，家人們圍著她唱生日快樂歌。", {
+        fade: 800,
+      });
+      await hide(els.line, 500);
+
+      const party = els.vista.querySelector("#epi-party");
+      const present = els.vista.querySelector("#epi-present");
+      const voucher = els.vista.querySelector("#epi-voucher");
+      party?.classList.add("is-shrink");
+      await wait(900);
+      if (party) party.hidden = true;
+      if (present) {
+        present.hidden = false;
+        present.classList.add("is-in");
+      }
+
+      await setText(
+        els.line,
+        "畫面忽然縮小——原來是現在的安安，正拿著手機看完這段故事。",
+        { fade: 800 }
+      );
+      await hide(els.line, 500);
+
+      await setText(els.line, "她把手機放下，轉頭抱住身旁的他。", { fade: 800 });
+      await hide(els.line, 500);
+
+      const phone = els.vista.querySelector("#phone-back");
+      phone?.classList.add("is-zoom");
+      await wait(1400);
+
+      if (voucher) {
+        voucher.hidden = false;
+        voucher.classList.add("is-in");
+      }
+      await setText(els.prompt, "獲得：Apple 兌換券", { fade: 900 });
+      await hide(els.prompt, 700);
+      await setText(
+        els.line,
+        "（悄悄話：這個周末，或許還會一起去挑一支新手機喔。）",
+        { fade: 900 }
+      );
+      await hide(els.line, 700);
+      await setText(els.prompt, "—— 遊戲結束，生日快樂安安 ——", {
+        fade: 1000,
+        holdMs: 2800,
+      });
+      await hide(els.prompt, 900);
+    },
+
     async goto(step) {
       const id = step.level;
       const url = new URL(window.location.href);
       url.searchParams.set("level", id);
-      if (step.replace !== false) {
-        window.location.replace(url.toString());
-      } else {
-        window.location.href = url.toString();
-      }
-      // Keep engine paused while navigation happens
+      if (step.replace !== false) window.location.replace(url.toString());
+      else window.location.href = url.toString();
       await new Promise(() => {});
     },
   };
