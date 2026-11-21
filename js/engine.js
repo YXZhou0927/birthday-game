@@ -1,8 +1,8 @@
 /** Declarative script runner for Ann Birthday Game. */
 
-import { createUi } from "./ui.js";
-import { createActions } from "./actions.js";
-import { startBgm, setMuted, isMuted } from "./bgm.js";
+import { createUi } from "./ui.js?v=20261122f";
+import { createActions } from "./actions.js?v=20261122f";
+import { startBgm, setMuted, isMuted } from "./bgm.js?v=20261122f";
 
 export class GameEngine {
   /**

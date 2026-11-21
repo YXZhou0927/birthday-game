@@ -1,7 +1,7 @@
 /**
  * 巨城篇 — 娃娃取名、shopping、愛心 1/4 & 2/4 → 燒肉
  */
-import { UNCLE_SHAWN } from "./places.js";
+import { UNCLE_SHAWN } from "./places.js?v=20261122f";
 
 export default {
   id: "big-city",

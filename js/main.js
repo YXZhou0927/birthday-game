@@ -1,5 +1,5 @@
-import { GameEngine } from "./engine.js";
-import { resolveLevel, levels, defaultLevelId } from "../scripts/registry.js";
+import { GameEngine } from "./engine.js?v=20261122f";
+import { resolveLevel, levels, defaultLevelId } from "../scripts/registry.js?v=20261122f";
 
 function readFlags() {
   const params = new URLSearchParams(window.location.search);

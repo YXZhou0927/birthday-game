@@ -1,10 +1,10 @@
 /** Step action handlers for the birthday game engine. */
 
-import { distanceMeters, readPosition, watchUntilNear } from "./geo.js";
-import { playHeartCollect } from "./heart.js";
-import { fillTemplate, loadMemory, saveMemory } from "./memory.js";
-import { mountVista, clearVista, buildVista } from "./vistas.js";
-import { startBgm } from "./bgm.js";
+import { distanceMeters, readPosition, watchUntilNear } from "./geo.js?v=20261122f";
+import { playHeartCollect } from "./heart.js?v=20261122f";
+import { fillTemplate, loadMemory, saveMemory } from "./memory.js?v=20261122f";
+import { mountVista, clearVista, buildVista } from "./vistas.js?v=20261122f";
+import { startBgm } from "./bgm.js?v=20261122f";
 
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;

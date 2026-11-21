@@ -1,7 +1,7 @@
 /**
  * 餐廳篇 — 燒肉、點餐互動、愛心 3/4 → 清大階梯
  */
-import { NTHU_STAIRS } from "./places.js";
+import { NTHU_STAIRS } from "./places.js?v=20261122f";
 
 export default {
   id: "restaurant",
