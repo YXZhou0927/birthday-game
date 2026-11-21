@@ -5,6 +5,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export function createUi(root = document) {
   const els = {
     stage: root.getElementById("stage"),
+    vista: root.getElementById("vista"),
     play: root.getElementById("play"),
     line: root.getElementById("line"),
     prompt: root.getElementById("prompt"),
@@ -13,12 +14,21 @@ export function createUi(root = document) {
     strip: root.getElementById("reel-strip"),
     scene: root.getElementById("scene"),
     sceneImg: root.getElementById("scene-img"),
+    inputForm: root.getElementById("input-form"),
+    inputLabel: root.getElementById("input-label"),
+    inputField: root.getElementById("input-field"),
+    inputSubmit: root.getElementById("input-submit"),
+    chooser: root.getElementById("chooser"),
+    chooserPrompt: root.getElementById("chooser-prompt"),
+    chooserOptions: root.getElementById("chooser-options"),
+    chooserSubmit: root.getElementById("chooser-submit"),
     gate: root.getElementById("gate"),
     confirm: root.getElementById("confirm"),
     gateHint: root.getElementById("gate-hint"),
     heartOverlay: root.getElementById("heart-overlay"),
     heartLabel: root.getElementById("heart-label"),
     tap: root.getElementById("tap"),
+    mute: root.getElementById("mute"),
     debug: root.getElementById("debug"),
   };
 
@@ -38,13 +48,10 @@ export function createUi(root = document) {
   const hideAllText = async (ms = 700) => {
     const textEls = [els.line, els.prompt, els.dialogue];
     await Promise.all(
-      textEls
-        .filter((el) => !el.hidden)
-        .map((el) => hide(el, ms))
+      textEls.filter((el) => !el.hidden).map((el) => hide(el, ms))
     );
   };
 
-  /** Wait until the player taps the stage (after content is ready). */
   const waitForTap = () =>
     new Promise((resolve) => {
       els.tap.hidden = false;

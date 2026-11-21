@@ -5,3 +5,9 @@ source-refs/
 .DS_Store
 .env
 .env.*
+
+# Local smoke-test deps
+node_modules/
+package.json
+package-lock.json
+test-*.mjs

@@ -1,9 +1,7 @@
 /**
- * 序章 — NFC 啟動後的第一關
- *
- * 素材：reel 沿用現有 pixel 小短片；approach 暫用同一組圖當 placeholder，
- * 之後把 src 換成「Q版像素新竹巨城」即可。
+ * 序章篇 — 30 年後的旁白（不揭身分）開啟今年生日冒險
  */
+import { BIG_CITY } from "./places.js";
 
 const REEL_FRAMES = [
   "pixel/01.png",
@@ -13,15 +11,8 @@ const REEL_FRAMES = [
   "pixel/05.png",
   "pixel/06.png",
   "pixel/07.png",
-  "pixel/08.png",
+  "vista:beach-card", // 安安生日卡（取代舊「豆豆」字樣圖）
 ];
-
-/** 新竹巨城 Big City（約略中心；radius 約步行 1 分鐘） */
-export const BIG_CITY = {
-  lat: 24.80972,
-  lng: 120.97535,
-  radiusMeters: 120,
-};
 
 export default {
   id: "prologue",
@@ -29,72 +20,73 @@ export default {
   startWithPlay: true,
   steps: [
     {
+      type: "vista",
+      id: "sparkle",
+      waitTap: false,
+    },
+    {
       type: "narration",
-      text: "奇怪…怎麼會有這個影片？是因為碰了那個貼紙的關係嗎？",
+      text: "奇怪……怎麼會冒出這支影片？難道是因為碰到那張貼紙嗎？",
     },
     {
       type: "reel",
       frames: REEL_FRAMES,
-      duration: 15000,
+      duration: 14000,
     },
     {
       type: "narration",
-      text: "這是之前的生日影片吧！好可愛！",
+      text: "啊，這是以前的生日影片吧。好可愛——看著看著，心裡忽然暖起來。",
     },
     {
       type: "narration",
-      text: "在清大讀書的日子大概有一半的時間都是我們一起度過的吧",
+      text: "清大那些日子，大概有一半的時間，都是兩個人一起度過的吧。",
     },
     {
       type: "narration",
-      text: "就算分隔兩地我們也總是像在身邊一樣每天互相鼓勵著彼此",
+      text: "就算後來分隔兩地，也還是像在身邊一樣，每天互相加油打氣。",
     },
     {
       type: "narration",
-      text: "在新竹的日子裡我每天都想跟你出去玩",
+      text: "而今年這個生日……說真的，簡直像一場冒險一樣好玩。",
     },
     {
       type: "narration",
-      text: "而我們最常去的地方應該就是那裏了吧！",
+      text: "故事的起點，當然是新竹最常去的那個商場——巨城。",
     },
     {
       type: "prompt",
-      text: "前往我們最常去的那個地方吧",
+      text: "出發吧，去我們的冒險起點",
     },
     {
       type: "confirm",
-      label: "我到了！",
+      label: "我到巨城了！",
       gps: BIG_CITY,
       waitingText: "正在感應你是否靠近巨城…",
       farText: "還沒到巨城喔",
-      nearText: "到了！可以按下確認",
+      nearText: "到了！按下確認開始冒險",
       errorText: "需要定位權限才能確認是否抵達",
-      rejectText: "好像還不夠近，再走近巨城一點吧",
+      rejectText: "再走近巨城一點吧",
     },
     {
-      type: "approach",
-      // TODO: 換成 Q版像素「新竹巨城」立面圖
-      src: "pixel/03.png",
-      fromScale: 0.38,
-      toScale: 1.08,
-      duration: 4500,
+      type: "vista",
+      id: "mall-approach",
+      waitTap: true,
+      autoClear: false,
     },
     {
-      type: "dialogue",
-      text: "寶貝，人生有妳讓我生活變得有趣了不少！",
+      type: "narration",
+      text: "看，她開開心心往巨城跑去——步伐都變得輕快了起來。",
     },
     {
-      type: "dialogue",
-      text: "我們在這裡有很多美好的回憶，就比如說 B1 那個很多娃娃的地方…",
+      type: "narration",
+      text: "不過來巨城，第一站通常不是亂逛……而是往 B1 那家最常去的店。",
     },
     {
       type: "prompt",
-      text: "下一關：新竹巨城",
-      holdMs: 1800,
+      text: "去 B1 盲盒店，找一個新夥伴吧",
+      holdMs: 2000,
     },
-    {
-      type: "goto",
-      level: "big-city",
-    },
+    { type: "clear" },
+    { type: "goto", level: "big-city" },
   ],
 };
