@@ -1,5 +1,5 @@
 /**
- * 巨城篇 — 娃娃取名、shopping、愛心 1/4 & 2/4 → 燒肉
+ * 巨城篇 — 娃娃、逛街、愛心 1–2 → 燒肉
  */
 import { UNCLE_SHAWN } from "./places.js";
 
@@ -8,20 +8,12 @@ export default {
   title: "巨城篇",
   startWithPlay: true,
   steps: [
-    {
-      type: "vista",
-      id: "doll-shop",
-      waitTap: false,
-      props: { dollName: "新夥伴" },
-    },
+    { type: "vista", id: "doll-shop", waitTap: false, props: { dollName: "新夥伴" } },
     {
       type: "narration",
-      text: "這天的生日，多了一位可愛的新夥伴——對，就是那個被抱回家的娃娃。",
+      text: "推開星·奇·市的門，貨架上全是軟軟的、圓圓的——這天的生日，我們多了一位可愛的新夥伴。",
     },
-    {
-      type: "prompt",
-      text: "給新夥伴取個名字吧",
-    },
+    { type: "prompt", text: "給新夥伴取個名字吧" },
     {
       type: "input",
       label: "新夥伴叫什麼名字？",
@@ -29,23 +21,15 @@ export default {
       storeAs: "dollName",
       button: "就是這個！",
     },
-    {
-      type: "heart",
-      piece: 1,
-    },
-    {
-      type: "vista",
-      id: "doll-shop",
-      waitTap: true,
-      autoClear: false,
-    },
+    { type: "heart", piece: 1 },
+    { type: "vista", id: "doll-shop", waitTap: true, autoClear: false },
     {
       type: "narration",
-      text: "於是 {dollName} 加入隊伍！店員笑咪咪地看著，旁邊還有其他客人在挑盲盒。",
+      text: "於是 {dollName} 正式加入我們的隊伍！店員笑咪咪地看著，旁邊還有其他客人在挑盲盒。",
     },
     {
       type: "dialogue",
-      text: "希望每個娃娃都能陪著妳，讓妳永遠不孤單。",
+      text: "希望每個娃娃都能陪著我們，讓彼此永遠不孤單。",
     },
     {
       type: "narration",
@@ -53,15 +37,12 @@ export default {
     },
     {
       type: "narration",
-      text: "不過來巨城，絕對不只買娃娃而已。今天可是要好好 Shopping 的日子！",
+      text: "不過來巨城，絕對不只買娃娃而已。今天我們可是要好好 Shopping 的日子！",
     },
-    {
-      type: "confirm",
-      label: "逛完了！",
-    },
+    { type: "confirm", label: "我們逛完了！" },
     {
       type: "choose",
-      prompt: "還買了哪些？（可複選；若沒買請選最後一項）",
+      prompt: "我們還買了哪些？（可複選；若沒買請選最後一項）",
       multi: true,
       min: 1,
       exclusiveId: "none",
@@ -80,52 +61,36 @@ export default {
       type: "if",
       check: "giftsNone",
       then: [
-        {
-          type: "vista",
-          id: "shopping-stroll",
-          waitTap: true,
-          autoClear: false,
-        },
+        { type: "vista", id: "shopping-stroll", waitTap: true, autoClear: false },
         {
           type: "narration",
-          text: "袋子是空的也沒關係——兩個人手牽手慢慢逛，比什麼戰利品都甜。",
+          text: "袋子是空的也沒關係——我們手牽手慢慢逛，比什麼戰利品都甜。",
         },
       ],
       else: [
-        {
-          type: "vista",
-          id: "shopping-haul",
-          waitTap: true,
-          autoClear: false,
-        },
+        { type: "vista", id: "shopping-haul", waitTap: true, autoClear: false },
         {
           type: "narration",
-          text: "她抱著新買的{gifts}，眼睛亮得像星星——旁邊的客人都被她的笑容傳染了。",
+          text: "我們抱著新買的{gifts}，笑得眼睛都彎起來了——連旁邊的客人都被傳染了。",
         },
       ],
     },
-    {
-      type: "heart",
-      piece: 2,
-    },
+    { type: "heart", piece: 2 },
     {
       type: "narration",
-      text: "那天收穫滿滿。但冒險還沒結束——晚上，還要去吃她最新歡的料理。",
+      text: "那天我們收穫滿滿。但冒險還沒結束——晚上，還要去吃最新歡的料理。",
     },
     {
       type: "narration",
       text: "燒肉！而且是家附近評價超高、超有名的那家燒肉餐酒館。",
     },
-    {
-      type: "prompt",
-      text: "前往 Uncle Shawn 燒肉餐酒館",
-    },
+    { type: "prompt", text: "前往 Uncle Shawn 燒肉餐酒館" },
     {
       type: "confirm",
-      label: "我到餐廳了！",
+      label: "我們到餐廳了！",
       gps: UNCLE_SHAWN,
-      waitingText: "正在感應你是否靠近 Uncle Shawn…",
-      farText: "還沒到燒肉店喔",
+      waitingText: "正在感應我們是否靠近 Uncle Shawn…",
+      farText: "我們還沒到燒肉店喔",
       nearText: "香氣飄來了！可以確認",
       rejectText: "再走近餐廳一點吧",
     },
