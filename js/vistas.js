@@ -1,4 +1,40 @@
-/** CSS/HTML interactive vignettes — livelier than static photos. */
+/** CSS/HTML vignettes — art-backed maps + sprite actors where available. */
+
+const ART = {
+  plaza: "assets/art/scenes/big_city_plaza_walkable.png",
+  circus: "assets/art/scenes/pop_circus.png",
+  boutique: "assets/art/scenes/boutique_floor.png",
+  bbq: "assets/art/scenes/yakiniku_interior.png",
+  stairs: "assets/art/scenes/campus_stairs.png",
+  gfStand: "assets/art/couple/girlfriend/stand_down.png",
+  gfStand2: "assets/art/couple/girlfriend/stand_down_f2.png",
+  gfWalk1: "assets/art/couple/girlfriend/walk_right_f1.png",
+  gfWalk2: "assets/art/couple/girlfriend/walk_right_f2.png",
+  gfWalk3: "assets/art/couple/girlfriend/walk_right_f3.png",
+  gfWalk4: "assets/art/couple/girlfriend/walk_right_f4.png",
+  bfStand: "assets/art/couple/boyfriend/stand_down.png",
+  bfStand2: "assets/art/couple/boyfriend/stand_down_f2.png",
+  gfSit: "assets/art/couple/girlfriend/sit_front.png",
+  bfSit: "assets/art/couple/boyfriend/sit_front.png",
+  hug3: "assets/art/couple/together/hug_3.png",
+  hug4: "assets/art/couple/together/hug_4.png",
+  clerkBlind: "assets/art/npcs/blindbox_clerk/stand_down.png",
+  clerkBlind2: "assets/art/npcs/blindbox_clerk/stand_down_f2.png",
+  clerkBbq: "assets/art/npcs/yakiniku_clerk/stand_down.png",
+  clerkBbq2: "assets/art/npcs/yakiniku_clerk/stand_down_f2.png",
+  pass1: "assets/art/npcs/passerby_01/stand_down.png",
+  pass1b: "assets/art/npcs/passerby_01/stand_down_f2.png",
+  pass2: "assets/art/npcs/passerby_02/stand_down.png",
+  pass3: "assets/art/npcs/passerby_03/stand_left.png",
+};
+
+const GIFT_ICON = {
+  clothes: "👗",
+  accessory: "💎",
+  perfume: "🌸",
+  skincare: "🧴",
+  stationery: "✏️",
+};
 
 function el(html) {
   const t = document.createElement("template");
@@ -6,8 +42,45 @@ function el(html) {
   return t.content.firstElementChild;
 }
 
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function actor(src, src2, className, style = "") {
+  const idle = src2
+    ? `data-idle-a="${src}" data-idle-b="${src2}"`
+    : "";
+  return `<img class="actor ${className}" src="${src}" alt="" draggable="false" ${idle} style="${style}" />`;
+}
+
+function wireIdle(root) {
+  const nodes = [...root.querySelectorAll("[data-idle-a]")];
+  if (!nodes.length) return;
+  let flip = false;
+  const timer = window.setInterval(() => {
+    flip = !flip;
+    nodes.forEach((img) => {
+      img.src = flip ? img.dataset.idleB : img.dataset.idleA;
+    });
+  }, 480);
+  root._idleTimer = timer;
+}
+
+function mapShell(bg, actorsHtml, caption = "", extraClass = "") {
+  return el(`<div class="vista vista--map ${extraClass}">
+    <div class="map-frame">
+      <img class="map-bg" src="${bg}" alt="" draggable="false" />
+      <div class="map-actors">${actorsHtml}</div>
+    </div>
+    ${caption ? `<p class="vista-caption">${caption}</p>` : ""}
+  </div>`);
+}
+
 const builders = {
-  /** Soft sparkle void used under narration. */
   sparkle() {
     return el(`<div class="vista vista--sparkle" aria-hidden="true">
       <div class="spark spark--1"></div><div class="spark spark--2"></div>
@@ -15,69 +88,100 @@ const builders = {
     </div>`);
   },
 
-  /** Q-style walk toward Big City. */
+  /** Walk toward Big City plaza with girlfriend + passersby. */
   "mall-approach"() {
-    return el(`<div class="vista vista--mall">
-      <div class="mall-sky"></div>
-      <div class="mall-building">
-        <span class="mall-sign">BIG CITY</span>
-        <div class="mall-windows"></div>
-      </div>
-      <div class="mall-girl bounce-walk" title="安安">✿</div>
-      <div class="mall-ground"></div>
-    </div>`);
+    const actors =
+      actor(ART.pass2, null, "npc npc--a", "left:12%; bottom:18%") +
+      actor(ART.pass3, null, "npc npc--b", "left:78%; bottom:22%") +
+      actor(ART.gfWalk1, ART.gfWalk2, "hero hero--walk", "left:28%; bottom:14%");
+    const root = mapShell(ART.plaza, actors, "安安開心地往巨城走去", "vista--plaza");
+    // simple walk cycle frames 1-4
+    const hero = root.querySelector(".hero--walk");
+    const frames = [ART.gfWalk1, ART.gfWalk2, ART.gfWalk3, ART.gfWalk4];
+    let i = 0;
+    root._idleTimer = window.setInterval(() => {
+      i = (i + 1) % frames.length;
+      if (hero) hero.src = frames[i];
+    }, 160);
+    return root;
   },
 
-  /** Blind-box / doll corner. */
+  /** POP CIRCUS blind-box shop. */
   "doll-shop"(props = {}) {
-    const name = props.dollName || "？？？";
-    return el(`<div class="vista vista--dolls">
-      <div class="shop-shelf"></div>
-      <div class="doll-crowd">
-        <span class="blob b1">♡</span><span class="blob b2">★</span>
-        <span class="blob b3">♪</span><span class="blob b4">✿</span>
-        <span class="blob b5">✦</span>
-      </div>
-      <div class="couple-pair">
-        <span class="chibi boy">♂</span>
-        <span class="chibi girl">♀</span>
-      </div>
-      <p class="vista-caption">${escapeHtml(name)} 加入隊伍！</p>
-    </div>`);
+    const name = props.dollName || "新夥伴";
+    const actors =
+      actor(ART.clerkBlind, ART.clerkBlind2, "npc npc--clerk", "left:62%; bottom:34%") +
+      actor(ART.pass1, ART.pass1b, "npc npc--shopper", "left:18%; bottom:20%") +
+      actor(ART.bfStand, ART.bfStand2, "hero hero--bf", "left:40%; bottom:16%") +
+      actor(ART.gfStand, ART.gfStand2, "hero hero--gf", "left:48%; bottom:14%");
+    const root = mapShell(
+      ART.circus,
+      actors,
+      `${escapeHtml(name)} 的新家！`,
+      "vista--circus"
+    );
+    wireIdle(root);
+    return root;
   },
 
-  /** Shopping haul — gifts float in. */
+  /** Bought gifts — girlfriend happy with floating icons. */
   "shopping-haul"(props = {}) {
-    const gifts = props.gifts?.length ? props.gifts : ["驚喜小物"];
-    const chips = gifts
-      .map((g, i) => `<span class="gift-chip g${i % 5}">${escapeHtml(g)}</span>`)
+    const gifts = (props.gifts || []).filter((g) => g !== "none");
+    const icons = gifts
+      .map(
+        (g, i) =>
+          `<span class="gift-float g${i}" style="--i:${i}">${GIFT_ICON[g] || "🎁"}</span>`
+      )
       .join("");
-    return el(`<div class="vista vista--shop">
-      <div class="bags bounce-soft">🛍</div>
-      <div class="gift-rain">${chips}</div>
-      <div class="couple-pair couple-pair--front">
-        <span class="chibi boy">♂</span>
-        <span class="chibi girl">♀</span>
-      </div>
-    </div>`);
+    const actors =
+      actor(ART.pass1, null, "npc npc--far", "left:12%; bottom:24%") +
+      actor(ART.bfStand, ART.bfStand2, "hero hero--bf", "left:42%; bottom:14%") +
+      actor(ART.gfStand, ART.gfStand2, "hero hero--gf hero--happy", "left:52%; bottom:12%");
+    const root = mapShell(
+      ART.boutique,
+      actors + `<div class="gift-orbit">${icons}</div>`,
+      "看她抱著戰利品笑得好開心",
+      "vista--boutique"
+    );
+    wireIdle(root);
+    return root;
   },
 
-  /** BBQ restaurant — tap meat to sear. */
+  /** No purchase — hand-in-hand stroll (hug frames as stand-in for holding hands). */
+  "shopping-stroll"() {
+    const actors =
+      actor(ART.pass2, null, "npc npc--far", "left:70%; bottom:26%") +
+      `<img class="actor hero hero--together" src="${ART.hug3}" alt="" draggable="false" data-idle-a="${ART.hug3}" data-idle-b="${ART.hug4}" style="left:44%; bottom:10%" />`;
+    const root = mapShell(
+      ART.boutique,
+      actors,
+      "手牽手逛街，也很幸福",
+      "vista--boutique vista--stroll"
+    );
+    wireIdle(root);
+    return root;
+  },
+
+  /** BBQ interior with couple seated + clerk + diners. */
   bbq() {
-    const root = el(`<div class="vista vista--bbq">
-      <div class="bbq-lamp"></div>
-      <div class="bbq-table">
-        <button type="button" class="meat m1" data-meat>🥩</button>
-        <button type="button" class="meat m2" data-meat>🦐</button>
-        <button type="button" class="meat m3" data-meat>🧀</button>
-        <div class="grill-glow"></div>
-      </div>
-      <div class="couple-pair couple-pair--seat">
-        <span class="chibi boy">♂</span>
-        <span class="chibi girl">♀</span>
-      </div>
-      <p class="vista-hint">點一下餐點，滋滋作響～</p>
-    </div>`);
+    const actors =
+      actor(ART.clerkBbq, ART.clerkBbq2, "npc npc--clerk", "left:14%; bottom:36%") +
+      actor(ART.pass1, null, "npc npc--diner", "left:72%; bottom:30%") +
+      actor(ART.bfSit, null, "hero hero--bf-sit", "left:40%; bottom:18%") +
+      actor(ART.gfSit, null, "hero hero--gf-sit", "left:50%; bottom:16%");
+    const root = mapShell(
+      ART.bbq,
+      actors +
+        `<div class="bbq-toys">
+          <button type="button" class="meat m1" data-meat>🥩</button>
+          <button type="button" class="meat m2" data-meat>🦐</button>
+          <button type="button" class="meat m3" data-meat>🧀</button>
+        </div>
+        <p class="vista-hint">點一下餐點，滋滋作響～</p>`,
+      "",
+      "vista--yakiniku"
+    );
+    wireIdle(root);
     root.querySelectorAll("[data-meat]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -89,22 +193,14 @@ const builders = {
     return root;
   },
 
-  /** Campus stairs at dusk. */
   stairs() {
-    return el(`<div class="vista vista--stairs">
-      <div class="stairs-sky"></div>
-      <div class="stairs-steps">
-        <i></i><i></i><i></i><i></i><i></i>
-      </div>
-      <div class="stairs-couple float-soft">
-        <span class="chibi boy">♂</span>
-        <span class="chibi girl">♀</span>
-      </div>
-      <div class="petal p1"></div><div class="petal p2"></div><div class="petal p3"></div>
-    </div>`);
+    const actors =
+      actor(ART.bfSit, null, "hero hero--bf-sit", "left:40%; bottom:28%") +
+      actor(ART.gfSit, null, "hero hero--gf-sit", "left:50%; bottom:26%");
+    const root = mapShell(ART.stairs, actors, "", "vista--stairs-map");
+    return root;
   },
 
-  /** 30 years later — room + heart becomes cake. */
   "future-room"() {
     return el(`<div class="vista vista--future">
       <div class="room-wall"></div>
@@ -114,21 +210,21 @@ const builders = {
         <span class="cake-body">🎂</span>
         <span class="cake-kid">🧒</span>
       </div>
-      <div class="future-mom" id="future-mom">👩</div>
+      <div class="future-mom" id="future-mom">
+        <img src="${ART.gfStand}" alt="" draggable="false" />
+      </div>
     </div>`);
   },
 
-  /** Family party → phone zoom ending. */
   epilogue() {
-    const root = el(`<div class="vista vista--epi">
+    return el(`<div class="vista vista--epi">
       <div class="epi-party" id="epi-party">
         <div class="party-folk">👨‍👩‍👧🎂🎉</div>
         <p class="vista-caption">生日快樂，安安！</p>
       </div>
       <div class="epi-present" id="epi-present" hidden>
         <div class="present-hug">
-          <span class="chibi girl">♀</span>
-          <span class="chibi boy">♂</span>
+          <img class="actor" src="${ART.hug4}" alt="" draggable="false" />
         </div>
         <div class="phone-back" id="phone-back">
           <span class="apple-mark"></span>
@@ -140,10 +236,8 @@ const builders = {
         <small>週末有個小驚喜…或許是新手機？</small>
       </div>
     </div>`);
-    return root;
   },
 
-  /** Beach birthday card for 安安 (replaces old 豆豆 frame). */
   "beach-card"() {
     return el(`<div class="vista vista--beach">
       <div class="wave w1"></div><div class="wave w2"></div>
@@ -155,14 +249,6 @@ const builders = {
   },
 };
 
-function escapeHtml(s) {
-  return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
 export function buildVista(id, props = {}) {
   const build = builders[id];
   if (!build) {
@@ -172,16 +258,16 @@ export function buildVista(id, props = {}) {
   return build(props);
 }
 
-/**
- * @param {HTMLElement} host
- * @param {string} id
- * @param {object} [props]
- */
 export function mountVista(host, id, props = {}) {
+  if (host._idleTimer) {
+    clearInterval(host._idleTimer);
+    host._idleTimer = null;
+  }
   const node = buildVista(id, props);
   if (!node) return null;
   host.innerHTML = "";
   host.appendChild(node);
+  if (node._idleTimer) host._idleTimer = node._idleTimer;
   host.hidden = false;
   void host.offsetWidth;
   host.classList.add("is-visible");
@@ -189,6 +275,12 @@ export function mountVista(host, id, props = {}) {
 }
 
 export function clearVista(host) {
+  if (host._idleTimer) {
+    clearInterval(host._idleTimer);
+    host._idleTimer = null;
+  }
+  const child = host.firstElementChild;
+  if (child?._idleTimer) clearInterval(child._idleTimer);
   host.classList.remove("is-visible");
   return new Promise((resolve) => {
     setTimeout(() => {

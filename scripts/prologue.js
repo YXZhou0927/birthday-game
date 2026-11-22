@@ -3,15 +3,16 @@
  */
 import { BIG_CITY } from "./places.js";
 
+/** New intro pack — cinematic fade; last beat is 安安 card (skip 豆豆 frame 08). */
 const REEL_FRAMES = [
-  "pixel/01.png",
-  "pixel/02.png",
-  "pixel/03.png",
-  "pixel/04.png",
-  "pixel/05.png",
-  "pixel/06.png",
-  "pixel/07.png",
-  "vista:beach-card", // 安安生日卡（取代舊「豆豆」字樣圖）
+  "assets/art/intro-frames/01.png",
+  "assets/art/intro-frames/02.png",
+  "assets/art/intro-frames/03.png",
+  "assets/art/intro-frames/04.png",
+  "assets/art/intro-frames/05.png",
+  "assets/art/intro-frames/06.png",
+  "assets/art/intro-frames/07.png",
+  "vista:beach-card",
 ];
 
 export default {
@@ -30,8 +31,11 @@ export default {
     },
     {
       type: "reel",
+      mode: "fade",
       frames: REEL_FRAMES,
-      duration: 14000,
+      perFrameMs: 1500,
+      fadeIn: 800,
+      fadeOut: 900,
     },
     {
       type: "narration",

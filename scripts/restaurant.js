@@ -20,6 +20,10 @@ export default {
     },
     {
       type: "narration",
+      text: "穿著圍裙的店員在桌邊忙碌，隔壁桌的客人也邊烤邊聊得好開心。",
+    },
+    {
+      type: "narration",
       text: "聽說拉單槓可以喝免費啤酒，干貝漢堡更是必點！",
     },
     {

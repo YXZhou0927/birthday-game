@@ -18,6 +18,9 @@ export class GameEngine {
       debug: this.debug,
       skipGps: this.skipGps,
       setDebug: (text) => this.setDebug(text),
+      runSteps: async (steps) => {
+        for (const s of steps ?? []) await this.runStep(s);
+      },
     };
     this.actions = createActions(this.ui, this.ctx);
     this.running = false;

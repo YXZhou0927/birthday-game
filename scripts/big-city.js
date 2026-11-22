@@ -41,7 +41,7 @@ export default {
     },
     {
       type: "narration",
-      text: "於是 {dollName} 加入隊伍！角落裡好多娃娃夥伴，圍著他們轉圈圈。",
+      text: "於是 {dollName} 加入隊伍！店員笑咪咪地看著，旁邊還有其他客人在挑盲盒。",
     },
     {
       type: "dialogue",
@@ -57,33 +57,52 @@ export default {
     },
     {
       type: "confirm",
-      label: "東西買好了！",
+      label: "逛完了！",
     },
     {
       type: "choose",
-      prompt: "還買了哪些好東西？（可複選）",
+      prompt: "還買了哪些？（可複選；若沒買請選最後一項）",
       multi: true,
       min: 1,
+      exclusiveId: "none",
       storeAs: "gifts",
-      button: "裝進袋子！",
+      button: "就是這樣！",
       options: [
-        "甜甜的小裙子",
-        "香香的護手霜",
-        "閃閃的飾品",
-        "好吃的零食罐",
-        "實用的小家電",
-        "神秘的驚喜盲包",
+        { id: "clothes", label: "衣服" },
+        { id: "accessory", label: "飾品" },
+        { id: "perfume", label: "香水" },
+        { id: "skincare", label: "保養品" },
+        { id: "stationery", label: "文具" },
+        { id: "none", label: "沒有買但是一起逛街也很開心" },
       ],
     },
     {
-      type: "vista",
-      id: "shopping-haul",
-      waitTap: true,
-      autoClear: false,
-    },
-    {
-      type: "narration",
-      text: "袋子鼓鼓的：{gifts}——看她笑得眼睛都彎起來了。",
+      type: "if",
+      check: "giftsNone",
+      then: [
+        {
+          type: "vista",
+          id: "shopping-stroll",
+          waitTap: true,
+          autoClear: false,
+        },
+        {
+          type: "narration",
+          text: "袋子是空的也沒關係——兩個人手牽手慢慢逛，比什麼戰利品都甜。",
+        },
+      ],
+      else: [
+        {
+          type: "vista",
+          id: "shopping-haul",
+          waitTap: true,
+          autoClear: false,
+        },
+        {
+          type: "narration",
+          text: "她抱著新買的{gifts}，眼睛亮得像星星——旁邊的客人都被她的笑容傳染了。",
+        },
+      ],
     },
     {
       type: "heart",
