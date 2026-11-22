@@ -9,7 +9,7 @@ import {
   giftsAreNone,
 } from "./memory.js";
 import { mountVista, clearVista, buildVista } from "./vistas.js";
-import { startBgm } from "./bgm.js";
+import { playVistaTrack, playSfx, playTrack } from "./audio.js";
 
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -39,38 +39,37 @@ export function createActions(ui, ctx) {
     show,
     hide,
     hideAllText,
+    hideSpeech,
     waitForTap,
-    setText,
+    say,
     preloadImages,
   } = ui;
 
   return {
     async narration(step) {
-      await setText(els.line, t(step.text), {
-        fade: step.fade ?? 900,
+      await say("回憶", t(step.text), {
+        fade: step.fade ?? 420,
         holdMs: step.holdMs ?? null,
       });
-      if (step.holdMs != null) await hide(els.line, step.fade ?? 900);
+      if (step.holdMs != null) await hideSpeech(280);
     },
 
     async dialogue(step) {
       const body = t(step.text);
-      const text = step.speaker
-        ? `${step.speaker}\n「${body}」`
-        : `「${body}」`;
-      await setText(els.dialogue, text, {
-        fade: step.fade ?? 900,
+      const text = step.speaker ? `${step.speaker}\n「${body}」` : `「${body}」`;
+      await say("低語", text, {
+        fade: step.fade ?? 420,
         holdMs: step.holdMs ?? null,
       });
-      if (step.holdMs != null) await hide(els.dialogue, step.fade ?? 900);
+      if (step.holdMs != null) await hideSpeech(280);
     },
 
     async prompt(step) {
-      await setText(els.prompt, t(step.text), {
-        fade: step.fade ?? 900,
+      await say("提示", t(step.text), {
+        fade: step.fade ?? 420,
         holdMs: step.holdMs ?? null,
       });
-      if (step.holdMs != null) await hide(els.prompt, step.fade ?? 900);
+      if (step.holdMs != null) await hideSpeech(280);
     },
 
     async reel(step) {
@@ -202,7 +201,9 @@ export function createActions(ui, ctx) {
         await clearVista(els.vista);
         return;
       }
+      playSfx("whoosh");
       mountVista(els.vista, step.id, props);
+      playVistaTrack(step.id);
       if (step.holdMs != null) {
         await wait(step.holdMs);
         if (step.autoClear) await clearVista(els.vista);
@@ -325,12 +326,12 @@ export function createActions(ui, ctx) {
     },
 
     async confirm(step) {
-      await hideAllText(600);
+      await hideAllText(280);
       els.confirm.textContent = t(step.label ?? "確認");
       els.confirm.disabled = false;
       els.gateHint.hidden = true;
       els.gateHint.textContent = "";
-      await show(els.gate, 700);
+      await show(els.gate, 400);
 
       const gps = step.gps;
       let stopWatch = null;
@@ -338,7 +339,8 @@ export function createActions(ui, ctx) {
       const finish = async () => {
         stopWatch?.();
         els.confirm.disabled = true;
-        await hide(els.gate, 700);
+        playSfx("confirm");
+        await hide(els.gate, 400);
       };
 
       if (!gps) {
@@ -435,66 +437,62 @@ export function createActions(ui, ctx) {
       if (!els.vista.hidden) await clearVista(els.vista);
     },
 
-    async bgm() {
-      await startBgm();
+    async bgm(step) {
+      await playTrack(step?.track || "overall");
       els.mute.hidden = false;
       els.mute.classList.add("is-visible");
     },
 
     /**
      * Stairs finale: complete heart → future room → cake → blessing.
-     * Expects vista future-room already mounted or mounts it.
      */
     async finale(step) {
-      await hideAllText(400);
+      await hideAllText(280);
+      playTrack("cozy");
       mountVista(els.vista, "future-room");
+      playSfx("whoosh");
       await wait(600);
 
-      // Glow complete heart then morph
       const heart = els.vista.querySelector("#future-heart");
       const cake = els.vista.querySelector("#future-cake");
       const mom = els.vista.querySelector("#future-mom");
       heart?.classList.add("is-complete");
-      await wait(1400);
+      await wait(1200);
       heart?.classList.add("is-shrink");
-      await wait(700);
+      await wait(650);
       if (heart) heart.hidden = true;
       if (cake) {
         cake.hidden = false;
         cake.classList.add("is-pop");
       }
+      playSfx("heart");
       await wait(900);
 
-      await setText(
-        els.dialogue,
-        `「${t(step.kidLine || "媽媽——來吃蛋糕了！")}」`,
-        { fade: 800 }
-      );
-      await hide(els.dialogue, 600);
+      await say("低語", `「${t(step.kidLine || "媽媽——來吃蛋糕了！")}」`);
+      await hideSpeech(280);
 
       mom?.classList.add("is-leaving");
-      await setText(
-        els.line,
+      await say(
+        "回憶",
         t(
           step.blessing ||
-            "安安，願妳每一歲都像今天一樣被溫柔包圍。記得回家吃生日蛋糕喔。"
-        ),
-        { fade: 900 }
+            "安安，願我們往後每一歲都被溫柔接住。今天的冒險很棒——現在，回家吃生日蛋糕吧。"
+        )
       );
-      await hide(els.line, 700);
-      await wait(600);
+      await hideSpeech(280);
+      await wait(500);
       await clearVista(els.vista);
     },
 
     /** Epilogue cinematic: party → present hug → phone → voucher. */
     async epilogueShow() {
-      await hideAllText(400);
+      await hideAllText(280);
+      playTrack("cozy");
       mountVista(els.vista, "epilogue");
-      await wait(1200);
-      await setText(els.line, "客廳裡熱鬧極了，家人們圍著她唱生日快樂歌。", {
-        fade: 800,
-      });
-      await hide(els.line, 500);
+      playSfx("whoosh");
+      await wait(900);
+      await say("回憶", "客廳裡好熱鬧——我們一家人圍著蛋糕，唱起生日快樂歌。");
+      await hideSpeech(280);
 
       const party = els.vista.querySelector("#epi-party");
       const present = els.vista.querySelector("#epi-present");
@@ -507,37 +505,32 @@ export function createActions(ui, ctx) {
         present.classList.add("is-in");
       }
 
-      await setText(
-        els.line,
-        "畫面忽然縮小——原來是現在的安安，正拿著手機看完這段故事。",
-        { fade: 800 }
+      await say(
+        "回憶",
+        "畫面忽然縮小——原來是現在的我們：安安正拿著手機，看完了這段故事。"
       );
-      await hide(els.line, 500);
+      await hideSpeech(280);
 
-      await setText(els.line, "她把手機放下，轉頭抱住身旁的他。", { fade: 800 });
-      await hide(els.line, 500);
+      await say("回憶", "她把手機輕輕放下，轉頭抱住身旁的他。");
+      await hideSpeech(280);
 
       const phone = els.vista.querySelector("#phone-back");
       phone?.classList.add("is-zoom");
-      await wait(1400);
+      await wait(1200);
 
       if (voucher) {
         voucher.hidden = false;
         voucher.classList.add("is-in");
       }
-      await setText(els.prompt, "獲得：Apple 兌換券", { fade: 900 });
-      await hide(els.prompt, 700);
-      await setText(
-        els.line,
-        "（悄悄話：這個周末，或許還會一起去挑一支新手機喔。）",
-        { fade: 900 }
-      );
-      await hide(els.line, 700);
-      await setText(els.prompt, "—— 遊戲結束，生日快樂安安 ——", {
-        fade: 1000,
-        holdMs: 2800,
+      playSfx("confirm");
+      await say("提示", "獲得：Apple 兌換券");
+      await hideSpeech(280);
+      await say("回憶", "（悄悄話：這個周末，我們或許還會一起去挑一支新手機喔。）");
+      await hideSpeech(280);
+      await say("提示", "—— 遊戲結束，生日快樂安安 ——", {
+        holdMs: 2600,
       });
-      await hide(els.prompt, 900);
+      await hideSpeech(400);
     },
 
     async goto(step) {

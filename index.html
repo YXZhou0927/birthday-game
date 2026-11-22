@@ -6,103 +6,92 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0b0610" />
+    <meta name="theme-color" content="#1a1210" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <title>Ann Birthday Game 2026 · 完整版</title>
-    <link rel="stylesheet" href="style.css?v=20261122h" />
+    <title>Ann Birthday Game 2026</title>
+    <link rel="stylesheet" href="style.css?v=20261122m" />
   </head>
   <body>
     <main id="stage" class="stage" aria-live="polite">
-      <p class="build-stamp" aria-hidden="true">完整版 · 素材更新</p>
-      <div id="vista" class="vista-host" hidden aria-hidden="true"></div>
+      <p class="build-stamp" aria-hidden="true">溫馨版</p>
 
-      <button id="play" class="play" type="button" aria-label="播放" hidden>
-        <span class="play__ring" aria-hidden="true">
-          <span class="play__triangle"></span>
-        </span>
-      </button>
+      <section id="world" class="world">
+        <div id="vista" class="vista-host" hidden aria-hidden="true"></div>
 
-      <p id="line" class="line" hidden></p>
-      <p id="prompt" class="prompt" hidden></p>
-      <p id="dialogue" class="dialogue" hidden></p>
+        <div id="reel" class="reel" hidden aria-hidden="true">
+          <div id="reel-strip" class="reel__strip"></div>
+        </div>
 
-      <div id="reel" class="reel" hidden aria-hidden="true">
-        <div id="reel-strip" class="reel__strip"></div>
-      </div>
+        <div id="scene" class="scene" hidden aria-hidden="true">
+          <img id="scene-img" class="scene__img" alt="" draggable="false" />
+        </div>
 
-      <div id="scene" class="scene" hidden aria-hidden="true">
-        <img id="scene-img" class="scene__img" alt="" draggable="false" />
-      </div>
+        <button id="play" class="play" type="button" aria-label="播放" hidden>
+          <span class="play__ring" aria-hidden="true">
+            <span class="play__triangle"></span>
+          </span>
+        </button>
+      </section>
 
-      <!-- Text input (doll name etc.) -->
-      <form id="input-form" class="input-form" hidden>
-        <label id="input-label" class="input-form__label" for="input-field"></label>
-        <input
-          id="input-field"
-          class="input-form__field"
-          type="text"
-          maxlength="16"
-          autocomplete="off"
-          enterkeyhint="done"
-        />
-        <button id="input-submit" class="confirm" type="submit"></button>
-      </form>
+      <section id="dock" class="dock">
+        <div id="speech" class="speech" hidden>
+          <div class="speech__panel">
+            <p id="speech-kind" class="speech__kind"></p>
+            <p id="speech-text" class="speech__text"></p>
+            <span class="speech__caret" aria-hidden="true">▼</span>
+          </div>
+        </div>
 
-      <!-- Multi / single choice -->
-      <div id="chooser" class="chooser" hidden>
-        <p id="chooser-prompt" class="chooser__prompt"></p>
-        <div id="chooser-options" class="chooser__options"></div>
-        <button id="chooser-submit" class="confirm" type="button"></button>
-      </div>
+        <form id="input-form" class="panel-card input-form" hidden>
+          <label id="input-label" class="input-form__label" for="input-field"></label>
+          <input
+            id="input-field"
+            class="input-form__field"
+            type="text"
+            maxlength="16"
+            autocomplete="off"
+            enterkeyhint="done"
+          />
+          <button id="input-submit" class="confirm" type="submit"></button>
+        </form>
 
-      <div id="gate" class="gate" hidden>
-        <button id="confirm" class="confirm" type="button"></button>
-        <p id="gate-hint" class="gate__hint" hidden></p>
-      </div>
+        <div id="chooser" class="panel-card chooser" hidden>
+          <p id="chooser-prompt" class="chooser__prompt"></p>
+          <div id="chooser-options" class="chooser__options"></div>
+          <button id="chooser-submit" class="confirm" type="button"></button>
+        </div>
+
+        <div id="gate" class="panel-card gate" hidden>
+          <button id="confirm" class="confirm" type="button"></button>
+          <p id="gate-hint" class="gate__hint" hidden></p>
+        </div>
+      </section>
 
       <div id="heart-overlay" class="heart-overlay" hidden aria-hidden="true">
         <div class="heart-stage">
-          <svg
-            class="heart-svg"
-            viewBox="0 0 100 100"
-            role="img"
-            aria-label="愛心碎片"
-          >
-            <defs>
-              <clipPath id="heart-clip">
-                <path
-                  d="M50 88 C20 65 8 48 8 32 C8 18 18 10 30 10 C38 10 45 14 50 22 C55 14 62 10 70 10 C82 10 92 18 92 32 C92 48 80 65 50 88 Z"
-                />
-              </clipPath>
-            </defs>
-            <g clip-path="url(#heart-clip)">
-              <rect class="heart-q heart-q--1" x="0" y="0" width="50" height="50" />
-              <rect class="heart-q heart-q--2" x="50" y="0" width="50" height="50" />
-              <rect class="heart-q heart-q--3" x="0" y="50" width="50" height="50" />
-              <rect class="heart-q heart-q--4" x="50" y="50" width="50" height="50" />
-            </g>
-            <path
-              class="heart-outline"
-              d="M50 88 C20 65 8 48 8 32 C8 18 18 10 30 10 C38 10 45 14 50 22 C55 14 62 10 70 10 C82 10 92 18 92 32 C92 48 80 65 50 88 Z"
-              fill="none"
+          <div class="heart-board">
+            <img class="heart-q heart-q--1" data-piece="1" src="assets/art/icons/hearts/heart_shard_1.png" alt="" />
+            <img class="heart-q heart-q--2" data-piece="2" src="assets/art/icons/hearts/heart_shard_2.png" alt="" />
+            <img class="heart-q heart-q--3" data-piece="3" src="assets/art/icons/hearts/heart_shard_3.png" alt="" />
+            <img class="heart-q heart-q--4" data-piece="4" src="assets/art/icons/hearts/heart_shard_4.png" alt="" />
+            <img
+              id="heart-full"
+              class="heart-full"
+              src="assets/art/icons/hearts/heart_assembled.png"
+              alt=""
+              hidden
             />
-            <line class="heart-cut" x1="50" y1="10" x2="50" y2="88" />
-            <line class="heart-cut" x1="8" y1="50" x2="92" y2="50" />
-          </svg>
+          </div>
           <p id="heart-label" class="heart-label">1 / 4</p>
         </div>
       </div>
 
       <button id="tap" class="tap" type="button" aria-label="繼續" hidden></button>
-
-      <button id="mute" class="mute" type="button" aria-label="音樂開關" hidden>
-        ♪
-      </button>
-
+      <button id="mute" class="mute" type="button" aria-label="音樂開關" hidden>♪</button>
       <aside id="debug" class="debug" hidden></aside>
     </main>
 
-    <script type="module" src="js/main.js?v=20261122h"></script>
+    <script type="module" src="js/main.js?v=20261122m"></script>
   </body>
 </html>

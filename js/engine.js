@@ -2,7 +2,7 @@
 
 import { createUi } from "./ui.js";
 import { createActions } from "./actions.js";
-import { startBgm, setMuted, isMuted } from "./bgm.js";
+import { startBgm, setMuted, isMuted, playSfx } from "./audio.js";
 
 export class GameEngine {
   /**
@@ -34,6 +34,7 @@ export class GameEngine {
       setMuted(!isMuted());
       this.ui.els.mute.classList.toggle("is-off", isMuted());
       this.ui.els.mute.textContent = isMuted() ? "🔇" : "♪";
+      playSfx("click");
     });
   }
 
@@ -72,7 +73,11 @@ export class GameEngine {
       const onPlay = async () => {
         els.play.removeEventListener("click", onPlay);
         els.play.disabled = true;
-        await startBgm();
+        // Never block story start on flaky autoplay / hung Audio.play().
+        await Promise.race([
+          startBgm(),
+          new Promise((r) => setTimeout(r, 1500)),
+        ]);
         els.mute.hidden = false;
         els.mute.classList.add("is-visible");
         await hide(els.play, 700);

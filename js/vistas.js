@@ -1,4 +1,7 @@
-/** CSS/HTML vignettes — art-backed maps + sprite actors where available. */
+/**
+ * Map vignettes tuned for 3/4 RPG scenes + chibi sprites.
+ * Actors use facing that matches top-down maps; sized for floor contact.
+ */
 
 const ART = {
   plaza: "assets/art/scenes/big_city_plaza_walkable.png",
@@ -6,35 +9,51 @@ const ART = {
   boutique: "assets/art/scenes/boutique_floor.png",
   bbq: "assets/art/scenes/yakiniku_interior.png",
   stairs: "assets/art/scenes/campus_stairs.png",
-  gfStand: "assets/art/couple/girlfriend/stand_down.png",
-  gfStand2: "assets/art/couple/girlfriend/stand_down_f2.png",
-  gfWalk1: "assets/art/couple/girlfriend/walk_right_f1.png",
-  gfWalk2: "assets/art/couple/girlfriend/walk_right_f2.png",
-  gfWalk3: "assets/art/couple/girlfriend/walk_right_f3.png",
-  gfWalk4: "assets/art/couple/girlfriend/walk_right_f4.png",
-  bfStand: "assets/art/couple/boyfriend/stand_down.png",
-  bfStand2: "assets/art/couple/boyfriend/stand_down_f2.png",
-  gfSit: "assets/art/couple/girlfriend/sit_front.png",
-  bfSit: "assets/art/couple/boyfriend/sit_front.png",
-  hug3: "assets/art/couple/together/hug_3.png",
-  hug4: "assets/art/couple/together/hug_4.png",
-  clerkBlind: "assets/art/npcs/blindbox_clerk/stand_down.png",
-  clerkBlind2: "assets/art/npcs/blindbox_clerk/stand_down_f2.png",
-  clerkBbq: "assets/art/npcs/yakiniku_clerk/stand_down.png",
-  clerkBbq2: "assets/art/npcs/yakiniku_clerk/stand_down_f2.png",
-  pass1: "assets/art/npcs/passerby_01/stand_down.png",
-  pass1b: "assets/art/npcs/passerby_01/stand_down_f2.png",
-  pass2: "assets/art/npcs/passerby_02/stand_down.png",
-  pass3: "assets/art/npcs/passerby_03/stand_left.png",
+  gf: {
+    down: ["assets/art/couple/girlfriend/stand_down.png", "assets/art/couple/girlfriend/stand_down_f2.png"],
+    up: ["assets/art/couple/girlfriend/stand_up.png", "assets/art/couple/girlfriend/stand_up_f2.png"],
+    left: ["assets/art/couple/girlfriend/stand_left.png", "assets/art/couple/girlfriend/stand_left_f2.png"],
+    right: ["assets/art/couple/girlfriend/stand_right.png", "assets/art/couple/girlfriend/stand_right_f2.png"],
+    walkUp: [1, 2, 3, 4].map((i) => `assets/art/couple/girlfriend/walk_up_f${i}.png`),
+    walkRight: [1, 2, 3, 4].map((i) => `assets/art/couple/girlfriend/walk_right_f${i}.png`),
+    sit: "assets/art/couple/girlfriend/sit_front.png",
+    sitSide: "assets/art/couple/girlfriend/sit_side.png",
+  },
+  bf: {
+    down: ["assets/art/couple/boyfriend/stand_down.png", "assets/art/couple/boyfriend/stand_down_f2.png"],
+    up: ["assets/art/couple/boyfriend/stand_up.png", "assets/art/couple/boyfriend/stand_up_f2.png"],
+    left: ["assets/art/couple/boyfriend/stand_left.png", "assets/art/couple/boyfriend/stand_left_f2.png"],
+    right: ["assets/art/couple/boyfriend/stand_right.png", "assets/art/couple/boyfriend/stand_right_f2.png"],
+    sit: "assets/art/couple/boyfriend/sit_front.png",
+    sitSide: "assets/art/couple/boyfriend/sit_side.png",
+  },
+  hug: ["assets/art/couple/together/hug_3.png", "assets/art/couple/together/hug_4.png"],
+  kiss: ["assets/art/couple/together/kiss_3.png", "assets/art/couple/together/kiss_4.png"],
+  clerkBlind: ["assets/art/npcs/blindbox_clerk/stand_down.png", "assets/art/npcs/blindbox_clerk/stand_down_f2.png"],
+  clerkBbq: ["assets/art/npcs/yakiniku_clerk/stand_left.png", "assets/art/npcs/yakiniku_clerk/stand_left_f2.png"],
+  pass1: ["assets/art/npcs/passerby_01/stand_down.png", "assets/art/npcs/passerby_01/stand_down_f2.png"],
+  pass2: ["assets/art/npcs/passerby_02/walk_left_f1.png", "assets/art/npcs/passerby_02/walk_left_f2.png"],
+  pass3: ["assets/art/npcs/passerby_03/stand_right.png", "assets/art/npcs/passerby_03/stand_right_f2.png"],
+  mom: ["assets/art/family/mom/stand_down.png", "assets/art/family/mom/stand_down_f2.png"],
+  kid: ["assets/art/family/kid/stand_down.png", "assets/art/family/kid/stand_down_f2.png"],
+  icons: {
+    clothes: "assets/art/icons/boutique_bag.png",
+    accessory: "assets/art/icons/christmas_ornament.png",
+    perfume: "assets/art/icons/flowers.png",
+    skincare: "assets/art/icons/blindbox_package.png",
+    stationery: "assets/art/icons/school_notebook.png",
+    bags: "assets/art/icons/shopping_bags.png",
+    plush: "assets/art/icons/plush_doll_ann.png",
+    plush2: "assets/art/icons/plush_bunny_cream.png",
+    plush3: "assets/art/icons/plush_cat_pink.png",
+    phone: "assets/art/icons/phone.png",
+    cake: "assets/art/icons/hearts/heart_cake.png",
+    flowers: "assets/art/icons/flowers.png",
+    nfc: "assets/art/icons/nfc_sticker.png",
+  },
 };
 
-const GIFT_ICON = {
-  clothes: "👗",
-  accessory: "💎",
-  perfume: "🌸",
-  skincare: "🧴",
-  stationery: "✏️",
-};
+const GIFT_KEYS = ["clothes", "accessory", "perfume", "skincare", "stationery"];
 
 function el(html) {
   const t = document.createElement("template");
@@ -50,135 +69,155 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;");
 }
 
-function actor(src, src2, className, style = "") {
-  const idle = src2
-    ? `data-idle-a="${src}" data-idle-b="${src2}"`
-    : "";
-  return `<img class="actor ${className}" src="${src}" alt="" draggable="false" ${idle} style="${style}" />`;
+/** x/y are % of map frame; y measured from bottom (feet on floor). */
+function actor(frames, className, x, y, scale = 1) {
+  const list = Array.isArray(frames) ? frames : [frames];
+  const a = list[0];
+  const b = list[1] || list[0];
+  return `<img class="actor ${className}" src="${a}" alt="" draggable="false"
+    data-idle-a="${a}" data-idle-b="${b}"
+    style="left:${x}%; bottom:${y}%; --scale:${scale}" />`;
 }
 
-function wireIdle(root) {
+function prop(src, className, x, y, scale = 1) {
+  return `<img class="prop ${className}" src="${src}" alt="" draggable="false"
+    style="left:${x}%; bottom:${y}%; --scale:${scale}" />`;
+}
+
+function wireIdle(root, ms = 520) {
   const nodes = [...root.querySelectorAll("[data-idle-a]")];
   if (!nodes.length) return;
   let flip = false;
-  const timer = window.setInterval(() => {
+  root._idleTimer = window.setInterval(() => {
     flip = !flip;
     nodes.forEach((img) => {
+      if (img.dataset.walk) return;
       img.src = flip ? img.dataset.idleB : img.dataset.idleA;
     });
-  }, 480);
-  root._idleTimer = timer;
+  }, ms);
 }
 
-function mapShell(bg, actorsHtml, caption = "", extraClass = "") {
+function wireWalk(root, selector, frames, ms = 140) {
+  const hero = root.querySelector(selector);
+  if (!hero || !frames?.length) return;
+  hero.dataset.walk = "1";
+  let i = 0;
+  const walkTimer = window.setInterval(() => {
+    i = (i + 1) % frames.length;
+    hero.src = frames[i];
+  }, ms);
+  const prev = root._idleTimer;
+  root._idleTimer = {
+    clear() {
+      clearInterval(walkTimer);
+      if (typeof prev === "number") clearInterval(prev);
+      else prev?.clear?.();
+    },
+  };
+}
+
+function mapShell(bg, actorsHtml, extraClass = "") {
   return el(`<div class="vista vista--map ${extraClass}">
     <div class="map-frame">
       <img class="map-bg" src="${bg}" alt="" draggable="false" />
+      <div class="map-dim"></div>
       <div class="map-actors">${actorsHtml}</div>
     </div>
-    ${caption ? `<p class="vista-caption">${caption}</p>` : ""}
   </div>`);
 }
 
 const builders = {
   sparkle() {
-    return el(`<div class="vista vista--sparkle" aria-hidden="true">
+    return el(`<div class="vista vista--sparkle">
+      <img class="spark-nfc" src="${ART.icons.nfc}" alt="" />
       <div class="spark spark--1"></div><div class="spark spark--2"></div>
       <div class="spark spark--3"></div><div class="spark spark--4"></div>
     </div>`);
   },
 
-  /** Walk toward Big City plaza with girlfriend + passersby. */
+  /** Walk deeper into plaza (facing up = into map). */
   "mall-approach"() {
     const actors =
-      actor(ART.pass2, null, "npc npc--a", "left:12%; bottom:18%") +
-      actor(ART.pass3, null, "npc npc--b", "left:78%; bottom:22%") +
-      actor(ART.gfWalk1, ART.gfWalk2, "hero hero--walk", "left:28%; bottom:14%");
-    const root = mapShell(ART.plaza, actors, "安安開心地往巨城走去", "vista--plaza");
-    // simple walk cycle frames 1-4
+      actor(ART.pass2, "npc", 18, 22, 0.85) +
+      actor(ART.pass3, "npc", 78, 26, 0.85) +
+      actor(ART.gf.walkUp, "hero hero--walk", 48, 12, 1.05) +
+      prop(ART.icons.bags, "prop--float", 56, 14, 0.55);
+    const root = mapShell(ART.plaza, actors, "vista--plaza");
+    wireWalk(root, ".hero--walk", ART.gf.walkUp);
+    // gentle upward drift
     const hero = root.querySelector(".hero--walk");
-    const frames = [ART.gfWalk1, ART.gfWalk2, ART.gfWalk3, ART.gfWalk4];
-    let i = 0;
-    root._idleTimer = window.setInterval(() => {
-      i = (i + 1) % frames.length;
-      if (hero) hero.src = frames[i];
-    }, 160);
+    if (hero) {
+      hero.style.transition = "bottom 3.6s ease-out";
+      requestAnimationFrame(() => {
+        hero.style.bottom = "38%";
+      });
+    }
     return root;
   },
 
-  /** POP CIRCUS blind-box shop. */
   "doll-shop"(props = {}) {
     const name = props.dollName || "新夥伴";
+    // Couple faces into the shop (up); clerk faces customers (down).
     const actors =
-      actor(ART.clerkBlind, ART.clerkBlind2, "npc npc--clerk", "left:62%; bottom:34%") +
-      actor(ART.pass1, ART.pass1b, "npc npc--shopper", "left:18%; bottom:20%") +
-      actor(ART.bfStand, ART.bfStand2, "hero hero--bf", "left:40%; bottom:16%") +
-      actor(ART.gfStand, ART.gfStand2, "hero hero--gf", "left:48%; bottom:14%");
+      actor(ART.clerkBlind, "npc npc--clerk", 58, 44, 0.95) +
+      actor(ART.pass1, "npc", 18, 26, 0.8) +
+      actor(ART.bf.up, "hero", 40, 16, 1) +
+      actor(ART.gf.up, "hero hero--gf", 50, 14, 1) +
+      prop(ART.icons.plush, "prop--plush", 48, 32, 0.72) +
+      prop(ART.icons.plush2, "prop--plush", 32, 38, 0.55) +
+      prop(ART.icons.plush3, "prop--plush", 68, 36, 0.55);
     const root = mapShell(
       ART.circus,
-      actors,
-      `${escapeHtml(name)} 的新家！`,
+      actors + `<p class="map-tag">✦ ${escapeHtml(name)} ✦</p>`,
       "vista--circus"
     );
     wireIdle(root);
     return root;
   },
 
-  /** Bought gifts — girlfriend happy with floating icons. */
   "shopping-haul"(props = {}) {
-    const gifts = (props.gifts || []).filter((g) => g !== "none");
-    const icons = gifts
+    const gifts = (props.gifts || []).filter((g) => g !== "none" && GIFT_KEYS.includes(g));
+    const floats = gifts
       .map(
         (g, i) =>
-          `<span class="gift-float g${i}" style="--i:${i}">${GIFT_ICON[g] || "🎁"}</span>`
+          prop(ART.icons[g] || ART.icons.bags, `prop--gift g${i}`, 48 + i * 6 - gifts.length * 3, 34 + (i % 2) * 6, 0.65)
       )
       .join("");
+    // After shopping: face the camera with bags floating — celebratory beat.
     const actors =
-      actor(ART.pass1, null, "npc npc--far", "left:12%; bottom:24%") +
-      actor(ART.bfStand, ART.bfStand2, "hero hero--bf", "left:42%; bottom:14%") +
-      actor(ART.gfStand, ART.gfStand2, "hero hero--gf hero--happy", "left:52%; bottom:12%");
-    const root = mapShell(
-      ART.boutique,
-      actors + `<div class="gift-orbit">${icons}</div>`,
-      "看她抱著戰利品笑得好開心",
-      "vista--boutique"
-    );
+      actor(ART.pass1, "npc", 16, 30, 0.8) +
+      actor(ART.bf.down, "hero", 44, 18, 1) +
+      actor(ART.gf.down, "hero hero--happy", 54, 16, 1) +
+      floats;
+    const root = mapShell(ART.boutique, actors, "vista--boutique");
     wireIdle(root);
     return root;
   },
 
-  /** No purchase — hand-in-hand stroll (hug frames as stand-in for holding hands). */
   "shopping-stroll"() {
     const actors =
-      actor(ART.pass2, null, "npc npc--far", "left:70%; bottom:26%") +
-      `<img class="actor hero hero--together" src="${ART.hug3}" alt="" draggable="false" data-idle-a="${ART.hug3}" data-idle-b="${ART.hug4}" style="left:44%; bottom:10%" />`;
-    const root = mapShell(
-      ART.boutique,
-      actors,
-      "手牽手逛街，也很幸福",
-      "vista--boutique vista--stroll"
-    );
-    wireIdle(root);
+      actor(ART.pass2, "npc", 72, 32, 0.8) +
+      actor(ART.hug, "hero hero--together", 48, 14, 1.35);
+    const root = mapShell(ART.boutique, actors, "vista--boutique vista--stroll");
+    wireIdle(root, 700);
     return root;
   },
 
-  /** BBQ interior with couple seated + clerk + diners. */
   bbq() {
+    // Seated at south-facing tables → sit_front reads toward camera; clerk at left counter.
     const actors =
-      actor(ART.clerkBbq, ART.clerkBbq2, "npc npc--clerk", "left:14%; bottom:36%") +
-      actor(ART.pass1, null, "npc npc--diner", "left:72%; bottom:30%") +
-      actor(ART.bfSit, null, "hero hero--bf-sit", "left:40%; bottom:18%") +
-      actor(ART.gfSit, null, "hero hero--gf-sit", "left:50%; bottom:16%");
+      actor(ART.clerkBbq, "npc npc--clerk", 16, 40, 0.95) +
+      actor(ART.pass1, "npc", 80, 34, 0.78) +
+      actor([ART.bf.sit], "hero hero--sit", 42, 20, 1.05) +
+      actor([ART.gf.sit], "hero hero--sit", 54, 18, 1.05) +
+      prop(ART.icons.bags, "prop--table", 49, 26, 0.4);
     const root = mapShell(
       ART.bbq,
       actors +
         `<div class="bbq-toys">
-          <button type="button" class="meat m1" data-meat>🥩</button>
-          <button type="button" class="meat m2" data-meat>🦐</button>
-          <button type="button" class="meat m3" data-meat>🧀</button>
-        </div>
-        <p class="vista-hint">點一下餐點，滋滋作響～</p>`,
-      "",
+          <button type="button" class="meat" data-meat><img src="assets/art/icons/grill_tongs.png" alt="" /></button>
+          <button type="button" class="meat" data-meat><img src="assets/art/icons/chopsticks.png" alt="" /></button>
+        </div>`,
       "vista--yakiniku"
     );
     wireIdle(root);
@@ -194,10 +233,21 @@ const builders = {
   },
 
   stairs() {
+    // Landing beat: sit side-by-side facing each other on the mid landing.
     const actors =
-      actor(ART.bfSit, null, "hero hero--bf-sit", "left:40%; bottom:28%") +
-      actor(ART.gfSit, null, "hero hero--gf-sit", "left:50%; bottom:26%");
-    const root = mapShell(ART.stairs, actors, "", "vista--stairs-map");
+      actor([ART.bf.sitSide], "hero hero--sit", 40, 36, 1.05) +
+      actor([ART.gf.sitSide], "hero hero--sit face-left", 56, 34, 1.05) +
+      prop(ART.icons.flowers, "prop--flower", 48, 44, 0.75);
+    return mapShell(ART.stairs, actors, "vista--stairs-map");
+  },
+
+  "stairs-memory"() {
+    // Soft kiss memory beat on the landing.
+    const actors =
+      actor(ART.kiss, "hero hero--together", 50, 30, 1.4) +
+      prop(ART.icons.flowers, "prop--flower", 62, 38, 0.65);
+    const root = mapShell(ART.stairs, actors, "vista--stairs-map");
+    wireIdle(root, 700);
     return root;
   },
 
@@ -205,29 +255,28 @@ const builders = {
     return el(`<div class="vista vista--future">
       <div class="room-wall"></div>
       <div class="room-window"></div>
-      <div class="future-heart" id="future-heart">♥</div>
+      <img class="future-heart-img" id="future-heart" src="assets/art/icons/hearts/heart_assembled.png" alt="" />
       <div class="future-cake" id="future-cake" hidden>
-        <span class="cake-body">🎂</span>
-        <span class="cake-kid">🧒</span>
+        <img src="assets/art/icons/hearts/heart_cake.png" alt="" />
+        <img class="future-kid" src="${ART.kid[0]}" alt="" data-idle-a="${ART.kid[0]}" data-idle-b="${ART.kid[1]}" />
       </div>
-      <div class="future-mom" id="future-mom">
-        <img src="${ART.gfStand}" alt="" draggable="false" />
-      </div>
+      <img class="future-mom" id="future-mom" src="${ART.mom[0]}" alt="" data-idle-a="${ART.mom[0]}" data-idle-b="${ART.mom[1]}" />
     </div>`);
   },
 
   epilogue() {
     return el(`<div class="vista vista--epi">
       <div class="epi-party" id="epi-party">
-        <div class="party-folk">👨‍👩‍👧🎂🎉</div>
-        <p class="vista-caption">生日快樂，安安！</p>
+        <div class="party-cast">
+          <img src="${ART.mom[0]}" alt="" />
+          <img src="${ART.kid[0]}" alt="" />
+          <img src="assets/art/icons/hearts/heart_cake.png" class="party-cake" alt="" />
+        </div>
       </div>
       <div class="epi-present" id="epi-present" hidden>
-        <div class="present-hug">
-          <img class="actor" src="${ART.hug4}" alt="" draggable="false" />
-        </div>
+        <img class="present-hug" src="${ART.hug[1]}" alt="" />
         <div class="phone-back" id="phone-back">
-          <span class="apple-mark"></span>
+          <img src="${ART.icons.phone}" alt="" />
           <span class="phone-label">iPhone 18 Pro</span>
         </div>
       </div>
@@ -243,7 +292,6 @@ const builders = {
       <div class="wave w1"></div><div class="wave w2"></div>
       <div class="sand">
         <p class="card-lines">To 安安<br/>HAPPY<br/>BIRTHDAY<br/><span>By 周 · 深圳</span></p>
-        <div class="footprints"></div>
       </div>
     </div>`);
   },
@@ -260,7 +308,8 @@ export function buildVista(id, props = {}) {
 
 export function mountVista(host, id, props = {}) {
   if (host._idleTimer) {
-    clearInterval(host._idleTimer);
+    if (typeof host._idleTimer === "number") clearInterval(host._idleTimer);
+    else host._idleTimer.clear?.();
     host._idleTimer = null;
   }
   const node = buildVista(id, props);
@@ -276,18 +325,22 @@ export function mountVista(host, id, props = {}) {
 
 export function clearVista(host) {
   if (host._idleTimer) {
-    clearInterval(host._idleTimer);
+    if (typeof host._idleTimer === "number") clearInterval(host._idleTimer);
+    else host._idleTimer.clear?.();
     host._idleTimer = null;
   }
   const child = host.firstElementChild;
-  if (child?._idleTimer) clearInterval(child._idleTimer);
+  if (child?._idleTimer) {
+    if (typeof child._idleTimer === "number") clearInterval(child._idleTimer);
+    else child._idleTimer.clear?.();
+  }
   host.classList.remove("is-visible");
   return new Promise((resolve) => {
     setTimeout(() => {
       host.innerHTML = "";
       host.hidden = true;
       resolve();
-    }, 700);
+    }, 500);
   });
 }
 
