@@ -1,8 +1,8 @@
-import prologue from "./prologue.js";
-import bigCity from "./big-city.js";
-import restaurant from "./restaurant.js";
-import stairs from "./stairs.js";
-import epilogue from "./epilogue.js";
+import prologue from "./prologue.js?v=20261122f";
+import bigCity from "./big-city.js?v=20261122f";
+import restaurant from "./restaurant.js?v=20261122f";
+import stairs from "./stairs.js?v=20261122f";
+import epilogue from "./epilogue.js?v=20261122f";
 
 /** @type {Record<string, object>} */
 export const levels = {

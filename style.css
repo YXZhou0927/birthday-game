@@ -1254,6 +1254,23 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.build-stamp {
+  position: absolute;
+  left: 0.75rem;
+  top: max(0.65rem, env(safe-area-inset-top));
+  z-index: 15;
+  margin: 0;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 143, 171, 0.18);
+  border: 1px solid rgba(255, 143, 171, 0.35);
+  color: #f3c4ce;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
 .mute {
   position: absolute;
   right: 0.75rem;

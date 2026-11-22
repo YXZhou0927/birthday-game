@@ -1,7 +1,7 @@
 /**
  * 序章篇 — 30 年後的旁白（不揭身分）開啟今年生日冒險
  */
-import { BIG_CITY } from "./places.js";
+import { BIG_CITY } from "./places.js?v=20261122f";
 
 const REEL_FRAMES = [
   "pixel/01.png",
@@ -26,7 +26,7 @@ export default {
     },
     {
       type: "narration",
-      text: "奇怪……怎麼會冒出這支影片？難道是因為碰到那張貼紙嗎？",
+      text: "奇怪……怎麼會冒出這支影片？難道是因為碰到那張貼紙的關係嗎？",
     },
     {
       type: "reel",
