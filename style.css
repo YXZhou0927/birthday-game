@@ -862,7 +862,7 @@ body {
 .play {
   position: absolute;
   left: 50%;
-  top: 68%;
+  top: 50%;
   z-index: 5;
   transform: translate(-50%, -50%);
   width: 72px;
@@ -922,7 +922,7 @@ body {
 .dialogue {
   position: absolute;
   left: 50%;
-  top: 68%;
+  top: 50%;
   z-index: 6;
   width: min(88vw, 28rem);
   margin: 0;
@@ -946,7 +946,7 @@ body {
 }
 
 .prompt {
-  top: 62%;
+  top: 50%;
   font-size: clamp(1.05rem, 4vw, 1.35rem);
   letter-spacing: 0.08em;
   color: #f3c4ce;
@@ -1304,11 +1304,198 @@ body {
 @media (min-width: 720px) {
   .line,
   .prompt,
-  .dialogue {
-    top: 72%;
-  }
-
+  .dialogue,
   .play {
-    top: 72%;
+    top: 50%;
   }
+}
+
+/* —— Cinematic fade reel —— */
+.reel--fade {
+  background: #faf2e3;
+  display: grid;
+  place-items: center;
+}
+
+.reel--fade .reel__strip {
+  width: 100%;
+  height: 100%;
+}
+
+.reel__fade-stage {
+  position: relative;
+  width: min(100%, 560px);
+  height: min(70dvh, 420px);
+  margin: 0 auto;
+}
+
+.reel__slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 700ms ease;
+  display: grid;
+  place-items: center;
+}
+
+.reel__slide.is-on {
+  opacity: 1;
+}
+
+.reel__slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.reel__slide .vista {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* —— Map + sprite actors —— */
+.vista--map {
+  background: #0a0810;
+}
+
+.map-frame {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.map-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: brightness(0.92);
+}
+
+.map-actors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.actor {
+  position: absolute;
+  width: clamp(56px, 16vw, 96px);
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+  transform: translateX(-50%);
+}
+
+.actor.npc {
+  width: clamp(48px, 13vw, 80px);
+  opacity: 0.95;
+}
+
+.actor.hero--together {
+  width: clamp(100px, 28vw, 160px);
+}
+
+.hero--happy {
+  animation: happy-bob 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes happy-bob {
+  from {
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    transform: translateX(-50%) translateY(-6px);
+  }
+}
+
+.gift-orbit {
+  position: absolute;
+  left: 52%;
+  bottom: 28%;
+  width: 0;
+  height: 0;
+}
+
+.gift-float {
+  position: absolute;
+  font-size: 1.4rem;
+  animation: orbit-gift 2.8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.25s);
+}
+
+.gift-float.g0 { left: -40px; top: -10px; }
+.gift-float.g1 { left: 20px; top: -30px; }
+.gift-float.g2 { left: 50px; top: 0; }
+.gift-float.g3 { left: -10px; top: 30px; }
+.gift-float.g4 { left: 30px; top: 40px; }
+
+@keyframes orbit-gift {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.08); }
+}
+
+.bbq-toys {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.6rem;
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.vista--yakiniku .vista-hint {
+  bottom: 2%;
+}
+
+.vista--map .vista-caption {
+  bottom: 6%;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+}
+
+.chip--exclusive {
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+.future-mom img {
+  width: 72px;
+  height: auto;
+  image-rendering: pixelated;
+}
+
+.present-hug .actor {
+  position: relative;
+  left: auto;
+  width: min(46vw, 180px);
+  transform: none;
+}
+
+.build-stamp {
+  position: absolute;
+  left: 0.75rem;
+  top: max(0.65rem, env(safe-area-inset-top));
+  z-index: 15;
+  margin: 0;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 143, 171, 0.18);
+  border: 1px solid rgba(255, 143, 171, 0.35);
+  color: #f3c4ce;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  pointer-events: none;
 }

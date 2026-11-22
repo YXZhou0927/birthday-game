@@ -2,7 +2,12 @@
 
 import { distanceMeters, readPosition, watchUntilNear } from "./geo.js";
 import { playHeartCollect } from "./heart.js";
-import { fillTemplate, loadMemory, saveMemory } from "./memory.js";
+import {
+  fillTemplate,
+  loadMemory,
+  saveMemory,
+  giftsAreNone,
+} from "./memory.js";
 import { mountVista, clearVista, buildVista } from "./vistas.js";
 import { startBgm } from "./bgm.js";
 
@@ -71,8 +76,49 @@ export function createActions(ui, ctx) {
     async reel(step) {
       await hideAllText(700);
       const frames = step.frames ?? [];
+      const mode = step.mode || "fade"; // fade = cinematic crossfade; scroll = legacy vertical pan
       await preloadImages(frames.filter((f) => !String(f).startsWith("vista:")));
 
+      if (mode === "fade") {
+        els.reel.classList.add("reel--fade");
+        els.strip.innerHTML = "";
+        els.strip.style.transform = "none";
+        const stage = document.createElement("div");
+        stage.className = "reel__fade-stage";
+        els.strip.appendChild(stage);
+
+        for (const src of frames) {
+          const slide = document.createElement("div");
+          slide.className = "reel__slide";
+          if (String(src).startsWith("vista:")) {
+            const node = buildVista(String(src).slice(6), loadMemory());
+            if (node) slide.appendChild(node);
+          } else {
+            const img = document.createElement("img");
+            img.src = src;
+            img.alt = "";
+            img.draggable = false;
+            slide.appendChild(img);
+          }
+          stage.appendChild(slide);
+        }
+
+        await show(els.reel, step.fadeIn ?? 700);
+        const slides = [...stage.querySelectorAll(".reel__slide")];
+        const per = step.perFrameMs ?? 1600;
+        for (let i = 0; i < slides.length; i++) {
+          slides.forEach((s, j) => s.classList.toggle("is-on", j === i));
+          await wait(per);
+        }
+        await wait(step.holdEnd ?? 500);
+        await hide(els.reel, step.fadeOut ?? 900);
+        els.reel.classList.remove("reel--fade");
+        els.strip.innerHTML = "";
+        return;
+      }
+
+      // Legacy vertical scroll
+      els.reel.classList.remove("reel--fade");
       els.strip.innerHTML = "";
       for (const src of frames) {
         if (String(src).startsWith("vista:")) {
@@ -198,13 +244,28 @@ export function createActions(ui, ctx) {
       await hide(els.inputForm, 500);
     },
 
-    /** Single or multi choice → memory[storeAs]. */
+    /**
+     * Choice chips → memory[storeAs].
+     * Supports exclusiveId: selecting it clears others (and vice versa).
+     */
     async choose(step) {
       await hideAllText(500);
       const multi = step.multi !== false;
+      const exclusiveId = step.exclusiveId || null;
       els.chooserPrompt.textContent = t(step.prompt ?? "請選擇");
       els.chooserOptions.innerHTML = "";
       const selected = new Set();
+
+      const syncDisabled = () => {
+        els.chooserSubmit.disabled = selected.size < (step.min ?? 1);
+      };
+
+      const paint = () => {
+        els.chooserOptions.querySelectorAll(".chip").forEach((btn) => {
+          btn.classList.toggle("is-on", selected.has(btn.dataset.id));
+        });
+        syncDisabled();
+      };
 
       for (const opt of step.options ?? []) {
         const id = typeof opt === "string" ? opt : opt.id;
@@ -212,26 +273,23 @@ export function createActions(ui, ctx) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "chip";
+        btn.dataset.id = id;
+        if (id === exclusiveId) btn.classList.add("chip--exclusive");
         btn.textContent = label;
         btn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (multi) {
-            if (selected.has(id)) {
-              selected.delete(id);
-              btn.classList.remove("is-on");
-            } else {
-              selected.add(id);
-              btn.classList.add("is-on");
-            }
+          if (exclusiveId && id === exclusiveId) {
+            selected.clear();
+            selected.add(exclusiveId);
+          } else if (multi) {
+            if (exclusiveId) selected.delete(exclusiveId);
+            if (selected.has(id)) selected.delete(id);
+            else selected.add(id);
           } else {
             selected.clear();
-            els.chooserOptions
-              .querySelectorAll(".chip")
-              .forEach((c) => c.classList.remove("is-on"));
             selected.add(id);
-            btn.classList.add("is-on");
           }
-          els.chooserSubmit.disabled = selected.size < (step.min ?? 1);
+          paint();
         });
         els.chooserOptions.appendChild(btn);
       }
@@ -253,6 +311,17 @@ export function createActions(ui, ctx) {
       });
 
       await hide(els.chooser, 500);
+    },
+
+    /** Run nested steps based on memory checks. */
+    async if(step) {
+      const mem = loadMemory();
+      let ok = false;
+      if (step.check === "giftsNone") ok = giftsAreNone(mem);
+      else if (step.check === "giftsBought") ok = !giftsAreNone(mem) && (mem.gifts || []).length > 0;
+      else if (typeof step.check === "function") ok = !!step.check(mem);
+      const branch = ok ? step.then : step.else;
+      if (branch?.length && ctx.runSteps) await ctx.runSteps(branch);
     },
 
     async confirm(step) {
