@@ -12,8 +12,10 @@ Q-pixel chibi packs for **mom** (aged-up girlfriend likeness) and **kid** (sligh
 
 | Folder | Role | Visual ID |
 |--------|------|-----------|
-| `mom/` | Warm mom (Ann aged-up) | Dark hair + cream ribbon, cream cardigan / dress, soft smile |
-| `kid/` | Neutral child | Short bowl-cut bangs (no ribbon), cream sweater + shorts, dark shoes |
+| `mom/` | Mature mom (Ann ~30yrs later) | Dark hair + cream ribbon, cream cardigan + rose dress, motherly calm |
+| `kid/` | Future child | Short bowl-cut, cream sweater + mint shorts; `hold_cake` / `walk_right_cake_*` for finale |
+
+Finale bedroom uses `mom/sit_front.png` (bedside), then `walk_right_f*`; kid appears with heart cake and exits the right door.
 
 ## Naming (matches couple pack)
 

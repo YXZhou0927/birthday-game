@@ -8,7 +8,7 @@ import {
   saveMemory,
   giftsAreNone,
 } from "./memory.js";
-import { mountVista, clearVista, buildVista } from "./vistas.js";
+import { mountVista, clearVista, buildVista, walkActorTo, futureArt } from "./vistas.js";
 import { playVistaTrack, playSfx, playTrack } from "./audio.js";
 
 function easeInOut(t) {
@@ -444,34 +444,61 @@ export function createActions(ui, ctx) {
     },
 
     /**
-     * Stairs finale: complete heart → future room → cake → blessing.
+     * Stairs finale: heart → shrink into kid's cake → kid exits right door →
+     * mom stands from bed and exits the same door.
      */
     async finale(step) {
       await hideAllText(280);
       playTrack("cozy");
       mountVista(els.vista, "future-room");
       playSfx("whoosh");
-      await wait(600);
+      await wait(700);
 
       const heart = els.vista.querySelector("#future-heart");
-      const cake = els.vista.querySelector("#future-cake");
+      const kid = els.vista.querySelector("#future-kid");
       const mom = els.vista.querySelector("#future-mom");
+
       heart?.classList.add("is-complete");
-      await wait(1200);
+      await wait(1100);
       heart?.classList.add("is-shrink");
-      await wait(650);
+      await wait(700);
       if (heart) heart.hidden = true;
-      if (cake) {
-        cake.hidden = false;
-        cake.classList.add("is-pop");
+
+      if (kid) {
+        kid.hidden = false;
+        kid.classList.add("is-pop");
+        playSfx("heart");
       }
-      playSfx("heart");
       await wait(900);
 
       await say("低語", `「${t(step.kidLine || "媽媽——來吃蛋糕了！")}」`);
       await hideSpeech(280);
 
-      mom?.classList.add("is-leaving");
+      // Child carries cake out the right-hand door.
+      if (kid) {
+        await walkActorTo(kid, 28, 10, {
+          frames: futureArt.kidWalkRightCake(),
+          ms: 1600,
+        });
+        kid.classList.add("is-exit");
+        await wait(450);
+        kid.hidden = true;
+      }
+
+      await say("回憶", t(step.momLine || "小孩捧著愛心蛋糕跑出房門——媽媽輕輕起身，跟了上去。"));
+      await hideSpeech(280);
+
+      if (mom) {
+        const walk = futureArt.momWalkRight();
+        mom.src = walk[0];
+        mom.dataset.idleA = walk[0];
+        mom.dataset.idleB = walk[1] || walk[0];
+        await walkActorTo(mom, 28, 10, { frames: walk, ms: 1800 });
+        mom.classList.add("is-exit");
+        await wait(450);
+        mom.hidden = true;
+      }
+
       await say(
         "回憶",
         t(
@@ -480,7 +507,7 @@ export function createActions(ui, ctx) {
         )
       );
       await hideSpeech(280);
-      await wait(500);
+      await wait(400);
       await clearVista(els.vista);
     },
 
