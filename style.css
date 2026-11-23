@@ -97,9 +97,11 @@ body {
 }
 
 .map-frame {
+  /* Locked 16:9 map: 32×18 tiles @ 40px → 1280×720 */
   position: relative;
   width: min(100%, 720px);
-  height: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
   max-height: 100%;
   overflow: hidden;
 }
@@ -108,7 +110,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 42%;
+  object-position: center center;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
@@ -125,10 +127,27 @@ body {
   pointer-events: none;
 }
 
+.map-grid {
+  display: none;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    linear-gradient(to right, rgba(255, 230, 160, 0.38) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 230, 160, 0.38) 1px, transparent 1px);
+  background-size: calc(100% / 32) calc(100% / 18);
+}
+
+.vista--map.show-grid .map-grid {
+  display: block;
+}
+
 .map-actors {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 2;
 }
 
 .actor,

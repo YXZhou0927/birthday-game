@@ -1,86 +1,84 @@
-# Scene maps (AB-15 / AB-16–AB-20)
+# Scene maps (locked grid)
 
-Q版像素 (chibi-friendly) playable environment maps for Ann Birthday Game. Coarse readable pixels, warm limited palette aligned with `media/art/couple/` and intro-pixel frames. Display size **1280×720** (logical ~320×180, 4× nearest). Suitable for overlaying **64px-scale** characters.
+Q版像素 playable environment maps for Ann Birthday Game. Coarse readable pixels, warm limited palette (~40 colors), aligned with couple / intro-pixel frames.
 
-Photo refs: `media/scene-refs/01`…`05`. Repo mirror: `assets/art/scenes/`.
+## Locked size & grid
+
+| Spec | Value |
+|------|--------|
+| Display | **1280×720** (16:9) |
+| Logical | **320×180**, 4× nearest |
+| Tile | **40×40** display px (= 10×10 logical) |
+| Grid | **32 × 18** tiles |
+| Camera | **3/4 RPG oblique** — axis-aligned walls; tops + fronts of props; orthogonal floor (no vanishing-point corridor) |
+
+All furniture / landmarks must snap to whole tiles. Runtime placement uses `js/map.js` (`tileStyle(col, row)`). Debug overlay: `?grid=1`.
 
 ## Files
 
-| File | Scene | Task |
-|------|--------|------|
-| `big_city_plaza.png` | Hsinchu Big City night plaza + Christmas tree | AB-16 |
-| `big_city_plaza_walkable.png` | Same plaza, clearer open floor for collision | AB-16 |
-| `yakiniku_interior.png` | BBQ restaurant seating (red booth, copper hoods) | AB-17 |
-| `pop_circus.png` | B1 POP CIRCUS / 星·奇·市 blind-box store | AB-18 |
-| `boutique_floor.png` | Big City 1F accessory boutique / kiosk floor | AB-19 |
-| `campus_stairs.png` | Campus courtyard — **lower** stairs + landing | AB-20 |
-| `preview_sheet.png` | 3×2 labeled collage of all maps | AB-15 |
-| `README.md` | This doc | AB-15 |
+| File | Scene |
+|------|--------|
+| `big_city_plaza.png` | Hsinchu Big City night plaza + Christmas |
+| `big_city_plaza_walkable.png` | Same plaza, open walk floor |
+| `yakiniku_interior.png` | BBQ restaurant (style / angle **source of truth**) |
+| `pop_circus.png` | B1 POP CIRCUS / 星·奇·市 blind-box store |
+| `boutique_floor.png` | Big City 1F accessory boutique |
+| `campus_stairs.png` | Campus courtyard — lower stairs + landing |
+| `preview_sheet.png` | 3×2 labeled collage |
+| `README.md` | This doc |
 
-## View & scale
+## Style rules (match yakiniku)
 
-- Preferred view: **3/4 RPG** (top-down-ish) for walkable interiors/floors.
-- `big_city_plaza.png` is more panoramic; use `big_city_plaza_walkable.png` when you need a flatter floor plan.
-- Keep nearest-neighbor scaling; do not bilinear-blur.
+1. Same 3/4 oblique angle as `yakiniku_interior.png` — not eye-level facade, not one-point aisle.
+2. Floor reads as a neat tile grid; props sit on tile edges.
+3. Warm limited palette; nearest-neighbor scale only (no bilinear blur).
+4. Empty of player/NPC characters (sprites are overlaid at runtime).
 
-## Suggested walkable zones
+## Suggested walkable zones (tile coords, origin top-left)
 
-Approximate regions as fractions of the 1280×720 frame (x0–x1, y0–y1 from top-left). Block solid props (tables, shelves, tree base, railings).
+### Plaza (`big_city_plaza*.png`)
 
-### `big_city_plaza.png` / `_walkable.png`
+| Zone | Approx tiles | Notes |
+|------|----------------|--------|
+| Walk floor | rows 9–17, cols 4–27 | Open plaza |
+| Blocked | tree / Santa left ~cols 1–8, rows 4–12 | Landmark |
+| Blocked | wreath / Santa right ~cols 24–30 | Landmark |
+| Transition | doors ~cols 13–18, row 6–8 | Enter mall |
 
-| Zone | Region | Notes |
-|------|--------|--------|
-| Plaza floor | y ≈ 0.45–1.0, x ≈ 0.08–0.92 | Main walk area |
-| Blocked | Tree + Santa sleigh (left ~0.05–0.32) | Landmark / obstacle |
-| Blocked | Wreath + Santas (right ~0.70–0.95) | Landmark / obstacle |
-| Transition | Center doors under “Big City” neon | Enter mall |
+### Yakiniku
 
-### `yakiniku_interior.png`
+| Zone | Approx tiles | Notes |
+|------|----------------|--------|
+| Aisles | between table rows / south edge | Primary path |
+| Blocked | tables + chairs | Sit / interact |
+| Overlay | copper hoods | Draw above actors |
+| NPC | left counter ~cols 2–5 | Clerk |
 
-| Zone | Region | Notes |
-|------|--------|--------|
-| Aisles | Between table rows / along south edge | Primary path |
-| Blocked | White tables + green chairs | Sit / interact |
-| Blocked | Red booth strip (north) | Sit facing tables |
-| Overlay | Copper hoods | Draw above character layer |
-| NPC | Left service counter / neon window | Clerk spot |
+### POP CIRCUS
 
-### `pop_circus.png`
+| Zone | Approx tiles | Notes |
+|------|----------------|--------|
+| Aisles | around center island | Walk loops |
+| Blocked | island + wall shelves | Browse |
+| NPC | back shelves / counter | Clerk |
 
-| Zone | Region | Notes |
-|------|--------|--------|
-| Aisles | Around central island + entrance strip | Walk loops |
-| Blocked | Center island shelves | Browse / interact |
-| Blocked | Wall shelves + star pillar (right) | Landmarks |
-| NPC | Near back shelves / counter | Blind-box clerk |
+### Boutique
 
-### `boutique_floor.png`
-
-| Zone | Region | Notes |
-|------|--------|--------|
-| Lanes | Cream tiles + darker beige path | Free roam between kiosks |
-| Blocked | Circular / rectangular display islands | Bag browse |
+| Zone | Approx tiles | Notes |
+|------|----------------|--------|
+| Lanes | cream tile aisles between islands | Free roam |
+| Blocked | display pedestals | Bag browse |
 | Landmark | LOWRYS FARM back wall | North boundary |
-| Props | Mirrors, mannequin, A-frame sign | Decor / interact |
 
-### `campus_stairs.png`
+### Campus stairs
 
-| Zone | Region | Notes |
-|------|--------|--------|
-| Courtyard | Grass + path (south half) | Approach |
-| Stairs | Lower flight (center) | Climb |
-| **Landing** | Mid landing at top of lower flight | **Confession / first flowers** event |
-| Blocked | Stone stools, ivy balcony mass | Decor |
+| Zone | Approx tiles | Notes |
+|------|----------------|--------|
+| Courtyard | grass + path, south half | Approach |
+| Stairs | center lower flight | Climb |
+| Landing | mid landing top of lower flight | Confession event |
+| Blocked | stone stools, ivy mass | Decor |
 
-## Landmark notes
+## Pipeline
 
-1. **Big City** — Red neon “Big City” sign; Christmas tree with star + red/gold bow; Santa sleigh base; hanging snowflakes.
-2. **Yakiniku** — Continuous red booth; copper hoods over grills; olive chairs; warm amber light vs neon window.
-3. **POP CIRCUS** — “星·奇·市 POP CIRCUS” header; black/white striped awnings; plushie + blind-box shelves; yellow-star pillar.
-4. **Boutique** — Cream mall floor; white kiosk islands with bags; LOWRYS FARM storefront.
-5. **Campus stairs** — Composition cropped to **lower** flight + landing (not the full zigzag). Warm concrete/brick + hanging ivy; quiet confession beat.
-
-## Method
-
-GenerateImage from scene-ref photos + intro-frame style refs → BOX downsample to 320×180 → ~40-color median-cut → 4× nearest → PNG.
+GenerateImage (yakiniku as style + angle ref) → BOX downsample to 320×180 → ~40-color median-cut → 4× nearest → PNG.

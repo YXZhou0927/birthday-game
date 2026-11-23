@@ -1,7 +1,10 @@
 /**
  * Map vignettes tuned for 3/4 RPG scenes + chibi sprites.
  * Actors use facing that matches top-down maps; sized for floor contact.
+ * Positions snap to the locked MAP grid (see map.js).
  */
+
+import { MAP, tileStyle, tileBottom, wantsGridOverlay } from "./map.js";
 
 const ART = {
   plaza: "assets/art/scenes/big_city_plaza_walkable.png",
@@ -69,19 +72,20 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;");
 }
 
-/** x/y are % of map frame; y measured from bottom (feet on floor). */
-function actor(frames, className, x, y, scale = 1) {
+/** Place actor on tile (col, row); feet at tile center. Origin top-left. */
+function actor(frames, className, col, row, scale = 1) {
   const list = Array.isArray(frames) ? frames : [frames];
   const a = list[0];
   const b = list[1] || list[0];
   return `<img class="actor ${className}" src="${a}" alt="" draggable="false"
-    data-idle-a="${a}" data-idle-b="${b}"
-    style="left:${x}%; bottom:${y}%; --scale:${scale}" />`;
+    data-idle-a="${a}" data-idle-b="${b}" data-col="${col}" data-row="${row}"
+    style="${tileStyle(col, row)} --scale:${scale}" />`;
 }
 
-function prop(src, className, x, y, scale = 1) {
+function prop(src, className, col, row, scale = 1) {
   return `<img class="prop ${className}" src="${src}" alt="" draggable="false"
-    style="left:${x}%; bottom:${y}%; --scale:${scale}" />`;
+    data-col="${col}" data-row="${row}"
+    style="${tileStyle(col, row)} --scale:${scale}" />`;
 }
 
 function wireIdle(root, ms = 520) {
@@ -117,10 +121,12 @@ function wireWalk(root, selector, frames, ms = 140) {
 }
 
 function mapShell(bg, actorsHtml, extraClass = "") {
-  return el(`<div class="vista vista--map ${extraClass}">
-    <div class="map-frame">
+  const gridClass = wantsGridOverlay() ? " show-grid" : "";
+  return el(`<div class="vista vista--map ${extraClass}${gridClass}">
+    <div class="map-frame" data-cols="${MAP.COLS}" data-rows="${MAP.ROWS}">
       <img class="map-bg" src="${bg}" alt="" draggable="false" />
       <div class="map-dim"></div>
+      <div class="map-grid" aria-hidden="true"></div>
       <div class="map-actors">${actorsHtml}</div>
     </div>
   </div>`);
@@ -138,18 +144,19 @@ const builders = {
   /** Walk deeper into plaza (facing up = into map). */
   "mall-approach"() {
     const actors =
-      actor(ART.pass2, "npc", 18, 22, 0.85) +
-      actor(ART.pass3, "npc", 78, 26, 0.85) +
-      actor(ART.gf.walkUp, "hero hero--walk", 48, 12, 1.05) +
-      prop(ART.icons.bags, "prop--float", 56, 14, 0.55);
+      actor(ART.pass2, "npc", 5, 13, 0.85) +
+      actor(ART.pass3, "npc", 25, 12, 0.85) +
+      actor(ART.gf.walkUp, "hero hero--walk", 15, 15, 1.05) +
+      prop(ART.icons.bags, "prop--float", 18, 15, 0.55);
     const root = mapShell(ART.plaza, actors, "vista--plaza");
     wireWalk(root, ".hero--walk", ART.gf.walkUp);
-    // gentle upward drift
+    // gentle upward drift (deeper into map = smaller row index)
     const hero = root.querySelector(".hero--walk");
     if (hero) {
       hero.style.transition = "bottom 3.6s ease-out";
       requestAnimationFrame(() => {
-        hero.style.bottom = "38%";
+        hero.dataset.row = "10";
+        hero.style.bottom = `${tileBottom(10)}%`;
       });
     }
     return root;
@@ -159,13 +166,13 @@ const builders = {
     const name = props.dollName || "新夥伴";
     // Couple faces into the shop (up); clerk faces customers (down).
     const actors =
-      actor(ART.clerkBlind, "npc npc--clerk", 58, 44, 0.95) +
-      actor(ART.pass1, "npc", 18, 26, 0.8) +
-      actor(ART.bf.up, "hero", 40, 16, 1) +
-      actor(ART.gf.up, "hero hero--gf", 50, 14, 1) +
-      prop(ART.icons.plush, "prop--plush", 48, 32, 0.72) +
-      prop(ART.icons.plush2, "prop--plush", 32, 38, 0.55) +
-      prop(ART.icons.plush3, "prop--plush", 68, 36, 0.55);
+      actor(ART.clerkBlind, "npc npc--clerk", 18, 9, 0.95) +
+      actor(ART.pass1, "npc", 5, 12, 0.8) +
+      actor(ART.bf.up, "hero", 12, 14, 1) +
+      actor(ART.gf.up, "hero hero--gf", 16, 14, 1) +
+      prop(ART.icons.plush, "prop--plush", 15, 11, 0.72) +
+      prop(ART.icons.plush2, "prop--plush", 10, 10, 0.55) +
+      prop(ART.icons.plush3, "prop--plush", 22, 10, 0.55);
     const root = mapShell(
       ART.circus,
       actors + `<p class="map-tag">✦ ${escapeHtml(name)} ✦</p>`,
@@ -178,16 +185,17 @@ const builders = {
   "shopping-haul"(props = {}) {
     const gifts = (props.gifts || []).filter((g) => g !== "none" && GIFT_KEYS.includes(g));
     const floats = gifts
-      .map(
-        (g, i) =>
-          prop(ART.icons[g] || ART.icons.bags, `prop--gift g${i}`, 48 + i * 6 - gifts.length * 3, 34 + (i % 2) * 6, 0.65)
-      )
+      .map((g, i) => {
+        const col = 14 + i - Math.floor(gifts.length / 2);
+        const row = 10 - (i % 2);
+        return prop(ART.icons[g] || ART.icons.bags, `prop--gift g${i}`, col, row, 0.65);
+      })
       .join("");
     // After shopping: face the camera with bags floating — celebratory beat.
     const actors =
-      actor(ART.pass1, "npc", 16, 30, 0.8) +
-      actor(ART.bf.down, "hero", 44, 18, 1) +
-      actor(ART.gf.down, "hero hero--happy", 54, 16, 1) +
+      actor(ART.pass1, "npc", 4, 11, 0.8) +
+      actor(ART.bf.down, "hero", 14, 13, 1) +
+      actor(ART.gf.down, "hero hero--happy", 17, 13, 1) +
       floats;
     const root = mapShell(ART.boutique, actors, "vista--boutique");
     wireIdle(root);
@@ -196,8 +204,8 @@ const builders = {
 
   "shopping-stroll"() {
     const actors =
-      actor(ART.pass2, "npc", 72, 32, 0.8) +
-      actor(ART.hug, "hero hero--together", 48, 14, 1.35);
+      actor(ART.pass2, "npc", 23, 11, 0.8) +
+      actor(ART.hug, "hero hero--together", 15, 14, 1.35);
     const root = mapShell(ART.boutique, actors, "vista--boutique vista--stroll");
     wireIdle(root, 700);
     return root;
@@ -206,11 +214,11 @@ const builders = {
   bbq() {
     // Seated at south-facing tables → sit_front reads toward camera; clerk at left counter.
     const actors =
-      actor(ART.clerkBbq, "npc npc--clerk", 16, 40, 0.95) +
-      actor(ART.pass1, "npc", 80, 34, 0.78) +
-      actor([ART.bf.sit], "hero hero--sit", 42, 20, 1.05) +
-      actor([ART.gf.sit], "hero hero--sit", 54, 18, 1.05) +
-      prop(ART.icons.bags, "prop--table", 49, 26, 0.4);
+      actor(ART.clerkBbq, "npc npc--clerk", 4, 9, 0.95) +
+      actor(ART.pass1, "npc", 26, 10, 0.78) +
+      actor([ART.bf.sit], "hero hero--sit", 13, 13, 1.05) +
+      actor([ART.gf.sit], "hero hero--sit", 17, 13, 1.05) +
+      prop(ART.icons.bags, "prop--table", 15, 12, 0.4);
     const root = mapShell(
       ART.bbq,
       actors +
@@ -235,17 +243,17 @@ const builders = {
   stairs() {
     // Landing beat: sit side-by-side facing each other on the mid landing.
     const actors =
-      actor([ART.bf.sitSide], "hero hero--sit", 40, 36, 1.05) +
-      actor([ART.gf.sitSide], "hero hero--sit face-left", 56, 34, 1.05) +
-      prop(ART.icons.flowers, "prop--flower", 48, 44, 0.75);
+      actor([ART.bf.sitSide], "hero hero--sit", 13, 9, 1.05) +
+      actor([ART.gf.sitSide], "hero hero--sit face-left", 18, 9, 1.05) +
+      prop(ART.icons.flowers, "prop--flower", 15, 8, 0.75);
     return mapShell(ART.stairs, actors, "vista--stairs-map");
   },
 
   "stairs-memory"() {
     // Soft kiss memory beat on the landing.
     const actors =
-      actor(ART.kiss, "hero hero--together", 50, 30, 1.4) +
-      prop(ART.icons.flowers, "prop--flower", 62, 38, 0.65);
+      actor(ART.kiss, "hero hero--together", 16, 10, 1.4) +
+      prop(ART.icons.flowers, "prop--flower", 20, 9, 0.65);
     const root = mapShell(ART.stairs, actors, "vista--stairs-map");
     wireIdle(root, 700);
     return root;
