@@ -4,7 +4,7 @@
  * Positions snap to the locked MAP grid (see map.js).
  */
 
-import { MAP, tileStyle, tileBottom, wantsGridOverlay } from "./map.js";
+import { MAP, tileStyle, tileBottom, tileLeft, wantsGridOverlay } from "./map.js";
 
 const ART = {
   plaza: "assets/art/scenes/big_city_plaza_walkable.png",
@@ -12,6 +12,14 @@ const ART = {
   boutique: "assets/art/scenes/boutique_floor.png",
   bbq: "assets/art/scenes/yakiniku_interior.png",
   stairs: "assets/art/scenes/campus_stairs.png",
+  bedroom: "assets/art/scenes/bedroom_future.png",
+  props: {
+    shelfIsland: "assets/art/props/shelf_island.png",
+    shelfWall: "assets/art/props/shelf_wall.png",
+    bbqTable: "assets/art/props/bbq_table.png",
+    chair: "assets/art/props/chair.png",
+    displayTable: "assets/art/props/display_table.png",
+  },
   gf: {
     down: ["assets/art/couple/girlfriend/stand_down.png", "assets/art/couple/girlfriend/stand_down_f2.png"],
     up: ["assets/art/couple/girlfriend/stand_up.png", "assets/art/couple/girlfriend/stand_up_f2.png"],
@@ -37,8 +45,22 @@ const ART = {
   pass1: ["assets/art/npcs/passerby_01/stand_down.png", "assets/art/npcs/passerby_01/stand_down_f2.png"],
   pass2: ["assets/art/npcs/passerby_02/walk_left_f1.png", "assets/art/npcs/passerby_02/walk_left_f2.png"],
   pass3: ["assets/art/npcs/passerby_03/stand_right.png", "assets/art/npcs/passerby_03/stand_right_f2.png"],
-  mom: ["assets/art/family/mom/stand_down.png", "assets/art/family/mom/stand_down_f2.png"],
-  kid: ["assets/art/family/kid/stand_down.png", "assets/art/family/kid/stand_down_f2.png"],
+  mom: {
+    down: ["assets/art/family/mom/stand_down.png", "assets/art/family/mom/stand_down_f2.png"],
+    sit: "assets/art/family/mom/sit_front.png",
+    walkRight: [
+      "assets/art/family/mom/walk_right_f1.png",
+      "assets/art/family/mom/walk_right_f2.png",
+    ],
+  },
+  kid: {
+    down: ["assets/art/family/kid/stand_down.png", "assets/art/family/kid/stand_down_f2.png"],
+    holdCake: "assets/art/family/kid/hold_cake.png",
+    walkRightCake: [
+      "assets/art/family/kid/walk_right_cake_f1.png",
+      "assets/art/family/kid/walk_right_cake_f2.png",
+    ],
+  },
   icons: {
     clothes: "assets/art/icons/boutique_bag.png",
     accessory: "assets/art/icons/christmas_ornament.png",
@@ -72,6 +94,11 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;");
 }
 
+/** Higher row (closer to camera) draws above lower row — depth sort. */
+function depthZ(row) {
+  return Math.round(Number(row) * 10) + 10;
+}
+
 /** Place actor on tile (col, row); feet at tile center. Origin top-left. */
 function actor(frames, className, col, row, scale = 1) {
   const list = Array.isArray(frames) ? frames : [frames];
@@ -79,13 +106,13 @@ function actor(frames, className, col, row, scale = 1) {
   const b = list[1] || list[0];
   return `<img class="actor ${className}" src="${a}" alt="" draggable="false"
     data-idle-a="${a}" data-idle-b="${b}" data-col="${col}" data-row="${row}"
-    style="${tileStyle(col, row)} --scale:${scale}" />`;
+    style="${tileStyle(col, row)} --scale:${scale}; z-index:${depthZ(row)}" />`;
 }
 
 function prop(src, className, col, row, scale = 1) {
   return `<img class="prop ${className}" src="${src}" alt="" draggable="false"
     data-col="${col}" data-row="${row}"
-    style="${tileStyle(col, row)} --scale:${scale}" />`;
+    style="${tileStyle(col, row)} --scale:${scale}; z-index:${depthZ(row)}" />`;
 }
 
 function wireIdle(root, ms = 520) {
@@ -164,15 +191,21 @@ const builders = {
 
   "doll-shop"(props = {}) {
     const name = props.dollName || "新夥伴";
-    // Couple faces into the shop (up); clerk faces customers (down).
+    // Floor is empty; shelves are depth-sorted props. Heroes in front aisles (higher row).
+    const furniture =
+      prop(ART.props.shelfWall, "prop--furn prop--shelf", 4, 7, 2.2) +
+      prop(ART.props.shelfWall, "prop--furn prop--shelf", 27, 7, 2.2) +
+      prop(ART.props.shelfIsland, "prop--furn prop--island", 12, 9, 2.4) +
+      prop(ART.props.shelfIsland, "prop--furn prop--island", 20, 9, 2.4);
     const actors =
-      actor(ART.clerkBlind, "npc npc--clerk", 18, 9, 0.95) +
-      actor(ART.pass1, "npc", 5, 12, 0.8) +
+      furniture +
+      actor(ART.clerkBlind, "npc npc--clerk", 16, 6, 0.95) +
+      actor(ART.pass1, "npc", 6, 12, 0.8) +
       actor(ART.bf.up, "hero", 12, 14, 1) +
       actor(ART.gf.up, "hero hero--gf", 16, 14, 1) +
-      prop(ART.icons.plush, "prop--plush", 15, 11, 0.72) +
-      prop(ART.icons.plush2, "prop--plush", 10, 10, 0.55) +
-      prop(ART.icons.plush3, "prop--plush", 22, 10, 0.55);
+      prop(ART.icons.plush, "prop--plush", 15, 12, 0.72) +
+      prop(ART.icons.plush2, "prop--plush", 10, 11, 0.55) +
+      prop(ART.icons.plush3, "prop--plush", 22, 11, 0.55);
     const root = mapShell(
       ART.circus,
       actors + `<p class="map-tag">✦ ${escapeHtml(name)} ✦</p>`,
@@ -191,11 +224,17 @@ const builders = {
         return prop(ART.icons[g] || ART.icons.bags, `prop--gift g${i}`, col, row, 0.65);
       })
       .join("");
-    // After shopping: face the camera with bags floating — celebratory beat.
+    const furniture =
+      prop(ART.props.displayTable, "prop--furn", 8, 9, 1.8) +
+      prop(ART.props.displayTable, "prop--furn", 14, 9, 1.8) +
+      prop(ART.props.displayTable, "prop--furn", 20, 9, 1.8) +
+      prop(ART.props.displayTable, "prop--furn", 11, 12, 1.8) +
+      prop(ART.props.displayTable, "prop--furn", 17, 12, 1.8);
     const actors =
-      actor(ART.pass1, "npc", 4, 11, 0.8) +
-      actor(ART.bf.down, "hero", 14, 13, 1) +
-      actor(ART.gf.down, "hero hero--happy", 17, 13, 1) +
+      furniture +
+      actor(ART.pass1, "npc", 4, 14, 0.8) +
+      actor(ART.bf.down, "hero", 14, 15, 1) +
+      actor(ART.gf.down, "hero hero--happy", 17, 15, 1) +
       floats;
     const root = mapShell(ART.boutique, actors, "vista--boutique");
     wireIdle(root);
@@ -203,8 +242,12 @@ const builders = {
   },
 
   "shopping-stroll"() {
+    const furniture =
+      prop(ART.props.displayTable, "prop--furn", 8, 10, 1.8) +
+      prop(ART.props.displayTable, "prop--furn", 22, 10, 1.8);
     const actors =
-      actor(ART.pass2, "npc", 23, 11, 0.8) +
+      furniture +
+      actor(ART.pass2, "npc", 23, 13, 0.8) +
       actor(ART.hug, "hero hero--together", 15, 14, 1.35);
     const root = mapShell(ART.boutique, actors, "vista--boutique vista--stroll");
     wireIdle(root, 700);
@@ -212,13 +255,23 @@ const builders = {
   },
 
   bbq() {
-    // Seated at south-facing tables → sit_front reads toward camera; clerk at left counter.
+    // Empty floor + table/chair props; couple sits in front of a table (higher row).
+    const furniture =
+      prop(ART.props.bbqTable, "prop--furn prop--table", 8, 7, 2.1) +
+      prop(ART.props.bbqTable, "prop--furn prop--table", 16, 7, 2.1) +
+      prop(ART.props.bbqTable, "prop--furn prop--table", 24, 7, 2.1) +
+      prop(ART.props.bbqTable, "prop--furn prop--table", 8, 12, 2.1) +
+      prop(ART.props.bbqTable, "prop--furn prop--table", 24, 12, 2.1) +
+      prop(ART.props.chair, "prop--furn prop--chair", 6, 8, 0.9) +
+      prop(ART.props.chair, "prop--furn prop--chair", 14, 8, 0.9) +
+      prop(ART.props.chair, "prop--furn prop--chair", 22, 8, 0.9);
     const actors =
-      actor(ART.clerkBbq, "npc npc--clerk", 4, 9, 0.95) +
-      actor(ART.pass1, "npc", 26, 10, 0.78) +
-      actor([ART.bf.sit], "hero hero--sit", 13, 13, 1.05) +
-      actor([ART.gf.sit], "hero hero--sit", 17, 13, 1.05) +
-      prop(ART.icons.bags, "prop--table", 15, 12, 0.4);
+      furniture +
+      actor(ART.clerkBbq, "npc npc--clerk", 3, 9, 0.95) +
+      actor(ART.pass1, "npc", 28, 10, 0.78) +
+      actor([ART.bf.sit], "hero hero--sit", 14, 14, 1.05) +
+      actor([ART.gf.sit], "hero hero--sit", 18, 14, 1.05) +
+      prop(ART.icons.bags, "prop--table", 16, 13, 0.4);
     const root = mapShell(
       ART.bbq,
       actors +
@@ -260,24 +313,27 @@ const builders = {
   },
 
   "future-room"() {
-    return el(`<div class="vista vista--future">
-      <div class="room-wall"></div>
-      <div class="room-window"></div>
-      <img class="future-heart-img" id="future-heart" src="assets/art/icons/hearts/heart_assembled.png" alt="" />
-      <div class="future-cake" id="future-cake" hidden>
-        <img src="assets/art/icons/hearts/heart_cake.png" alt="" />
-        <img class="future-kid" src="${ART.kid[0]}" alt="" data-idle-a="${ART.kid[0]}" data-idle-b="${ART.kid[1]}" />
-      </div>
-      <img class="future-mom" id="future-mom" src="${ART.mom[0]}" alt="" data-idle-a="${ART.mom[0]}" data-idle-b="${ART.mom[1]}" />
-    </div>`);
+    // Bedroom map: mom sits mid bed; kid + cake appear after heart shrinks; both exit right door.
+    const cast =
+      actor([ART.mom.sit], "hero future-mom", 15, 9, 1.25) +
+      `<img class="actor future-kid" id="future-kid" hidden
+        src="${ART.kid.holdCake}" alt="" draggable="false"
+        data-col="16" data-row="12"
+        style="${tileStyle(16, 12)} --scale:1.15; z-index:${depthZ(12)}" />` +
+      `<img class="future-heart-img" id="future-heart"
+        src="assets/art/icons/hearts/heart_assembled.png" alt="" draggable="false" />`;
+    const root = mapShell(ART.bedroom, cast, "vista--future vista--bedroom");
+    const mom = root.querySelector(".future-mom");
+    if (mom) mom.id = "future-mom";
+    return root;
   },
 
   epilogue() {
     return el(`<div class="vista vista--epi">
       <div class="epi-party" id="epi-party">
         <div class="party-cast">
-          <img src="${ART.mom[0]}" alt="" />
-          <img src="${ART.kid[0]}" alt="" />
+          <img src="${ART.mom.down[0]}" alt="" />
+          <img src="${ART.kid.holdCake}" alt="" />
           <img src="assets/art/icons/hearts/heart_cake.png" class="party-cake" alt="" />
         </div>
       </div>
@@ -313,6 +369,41 @@ export function buildVista(id, props = {}) {
   }
   return build(props);
 }
+
+/** Move an actor to a tile with CSS transition; optional walk-frame cycle. */
+export function walkActorTo(img, col, row, { frames = null, ms = 1400, frameMs = 160 } = {}) {
+  if (!img) return Promise.resolve();
+  return new Promise((resolve) => {
+    let walkTimer = null;
+    if (frames?.length) {
+      img.dataset.walk = "1";
+      let i = 0;
+      walkTimer = window.setInterval(() => {
+        i = (i + 1) % frames.length;
+        img.src = frames[i];
+      }, frameMs);
+    }
+    img.style.transition = `left ${ms}ms linear, bottom ${ms}ms linear, opacity 0.35s ease`;
+    img.style.left = `${tileLeft(col)}%`;
+    img.style.bottom = `${tileBottom(row)}%`;
+    img.style.zIndex = String(depthZ(row));
+    img.dataset.col = String(col);
+    img.dataset.row = String(row);
+    window.setTimeout(() => {
+      if (walkTimer) clearInterval(walkTimer);
+      delete img.dataset.walk;
+      resolve();
+    }, ms);
+  });
+}
+
+export const futureArt = {
+  momSit: () => ART.mom.sit,
+  momWalkRight: () => ART.mom.walkRight,
+  momDown: () => ART.mom.down,
+  kidHoldCake: () => ART.kid.holdCake,
+  kidWalkRightCake: () => ART.kid.walkRightCake,
+};
 
 export function mountVista(host, id, props = {}) {
   if (host._idleTimer) {

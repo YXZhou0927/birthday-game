@@ -30,7 +30,7 @@ python3 -m http.server 5173 --bind 127.0.0.1
 - `js/bgm.js` — 輕快程序化背景音樂（右上角可靜音）
 - `js/memory.js` — 跨關卡記憶（娃娃名、購物清單）
 
-場景素材統一為燒肉店同款 **3/4 RPG 俯視**；除錯格線加 `?grid=1`。
+場景素材統一為燒肉店同款 **3/4 RPG 俯視**（星奇市更俯視）；貨架／餐桌／椅子為獨立 prop 並依格線列做景深。除錯格線加 `?grid=1`。結局 `finale`：愛心縮小 → 小孩捧蛋糕 → 右側門離場 → 媽媽跟上。
 
 步驟型別：`narration` `dialogue` `prompt` `reel` `vista` `input` `choose` `confirm`(+gps) `heart` `finale` `epilogueShow` `goto` …
 
