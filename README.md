@@ -26,8 +26,11 @@ python3 -m http.server 5173 --bind 127.0.0.1
 
 - `scripts/*.js` — 改劇情／GPS／選項（支援 `{dollName}` `{gifts}`）
 - `js/vistas.js` — CSS 動態／可互動場景
+- `js/map.js` — 鎖定地圖格線（32×18 tiles @ 40px → 1280×720）；角色用 `tileStyle(col, row)` 對齊
 - `js/bgm.js` — 輕快程序化背景音樂（右上角可靜音）
 - `js/memory.js` — 跨關卡記憶（娃娃名、購物清單）
+
+場景素材統一為燒肉店同款 **3/4 RPG 俯視**；除錯格線加 `?grid=1`。
 
 步驟型別：`narration` `dialogue` `prompt` `reel` `vista` `input` `choose` `confirm`(+gps) `heart` `finale` `epilogueShow` `goto` …
 
