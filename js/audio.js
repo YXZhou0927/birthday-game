@@ -29,6 +29,7 @@ const VISTA_TRACK = {
   "future-room": "cozy",
   epilogue: "cozy",
   "beach-card": "overall",
+  living: "cozy",
 };
 
 let muted = false;

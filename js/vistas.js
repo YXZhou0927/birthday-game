@@ -7,18 +7,22 @@
 import { MAP, tileStyle, tileBottom, tileLeft, wantsGridOverlay } from "./map.js";
 
 const ART = {
-  plaza: "assets/art/scenes/big_city_plaza_walkable.png",
+  plaza: "assets/art/scenes/big_city_plaza.png",
   circus: "assets/art/scenes/pop_circus.png",
   boutique: "assets/art/scenes/boutique_floor.png",
   bbq: "assets/art/scenes/yakiniku_interior.png",
   stairs: "assets/art/scenes/campus_stairs.png",
   bedroom: "assets/art/scenes/bedroom_future.png",
+  living: "assets/art/scenes/living_room.png",
   props: {
     shelfIsland: "assets/art/props/shelf_island.png",
     shelfWall: "assets/art/props/shelf_wall.png",
     bbqTable: "assets/art/props/bbq_table.png",
     chair: "assets/art/props/chair.png",
     displayTable: "assets/art/props/display_table.png",
+    /** Full-map raised furniture layers (all shelves / all tables+chairs). */
+    boutiqueShelves: "assets/art/props/boutique_shelves.png",
+    yakinikuFurniture: "assets/art/props/yakiniku_furniture.png",
   },
   gf: {
     down: ["assets/art/couple/girlfriend/stand_down.png", "assets/art/couple/girlfriend/stand_down_f2.png"],
@@ -113,6 +117,12 @@ function prop(src, className, col, row, scale = 1) {
   return `<img class="prop ${className}" src="${src}" alt="" draggable="false"
     data-col="${col}" data-row="${row}"
     style="${tileStyle(col, row)} --scale:${scale}; z-index:${depthZ(row)}" />`;
+}
+
+/** Full-frame raised furniture layer (1280×720 RGBA), sits above floor / below actors. */
+function layerProp(src, className = "prop--layer") {
+  return `<img class="prop ${className}" src="${src}" alt="" draggable="false"
+    style="left:0; bottom:0; width:100%; height:100%; transform:none; z-index:12" />`;
 }
 
 function wireIdle(root, ms = 520) {
@@ -224,14 +234,9 @@ const builders = {
         return prop(ART.icons[g] || ART.icons.bags, `prop--gift g${i}`, col, row, 0.65);
       })
       .join("");
-    const furniture =
-      prop(ART.props.displayTable, "prop--furn", 8, 9, 1.8) +
-      prop(ART.props.displayTable, "prop--furn", 14, 9, 1.8) +
-      prop(ART.props.displayTable, "prop--furn", 20, 9, 1.8) +
-      prop(ART.props.displayTable, "prop--furn", 11, 12, 1.8) +
-      prop(ART.props.displayTable, "prop--furn", 17, 12, 1.8);
+    // Floor empty; all display shelves are one raised layer object.
     const actors =
-      furniture +
+      layerProp(ART.props.boutiqueShelves, "prop--layer prop--shelves") +
       actor(ART.pass1, "npc", 4, 14, 0.8) +
       actor(ART.bf.down, "hero", 14, 15, 1) +
       actor(ART.gf.down, "hero hero--happy", 17, 15, 1) +
@@ -242,11 +247,8 @@ const builders = {
   },
 
   "shopping-stroll"() {
-    const furniture =
-      prop(ART.props.displayTable, "prop--furn", 8, 10, 1.8) +
-      prop(ART.props.displayTable, "prop--furn", 22, 10, 1.8);
     const actors =
-      furniture +
+      layerProp(ART.props.boutiqueShelves, "prop--layer prop--shelves") +
       actor(ART.pass2, "npc", 23, 13, 0.8) +
       actor(ART.hug, "hero hero--together", 15, 14, 1.35);
     const root = mapShell(ART.boutique, actors, "vista--boutique vista--stroll");
@@ -255,18 +257,9 @@ const builders = {
   },
 
   bbq() {
-    // Empty floor + table/chair props; couple sits in front of a table (higher row).
-    const furniture =
-      prop(ART.props.bbqTable, "prop--furn prop--table", 8, 7, 2.1) +
-      prop(ART.props.bbqTable, "prop--furn prop--table", 16, 7, 2.1) +
-      prop(ART.props.bbqTable, "prop--furn prop--table", 24, 7, 2.1) +
-      prop(ART.props.bbqTable, "prop--furn prop--table", 8, 12, 2.1) +
-      prop(ART.props.bbqTable, "prop--furn prop--table", 24, 12, 2.1) +
-      prop(ART.props.chair, "prop--furn prop--chair", 6, 8, 0.9) +
-      prop(ART.props.chair, "prop--furn prop--chair", 14, 8, 0.9) +
-      prop(ART.props.chair, "prop--furn prop--chair", 22, 8, 0.9);
+    // Empty floor + one raised tables/chairs object; couple sits in front aisle.
     const actors =
-      furniture +
+      layerProp(ART.props.yakinikuFurniture, "prop--layer prop--bbq-set") +
       actor(ART.clerkBbq, "npc npc--clerk", 3, 9, 0.95) +
       actor(ART.pass1, "npc", 28, 10, 0.78) +
       actor([ART.bf.sit], "hero hero--sit", 14, 14, 1.05) +
@@ -329,14 +322,15 @@ const builders = {
   },
 
   epilogue() {
-    return el(`<div class="vista vista--epi">
-      <div class="epi-party" id="epi-party">
-        <div class="party-cast">
-          <img src="${ART.mom.down[0]}" alt="" />
-          <img src="${ART.kid.holdCake}" alt="" />
-          <img src="assets/art/icons/hearts/heart_cake.png" class="party-cake" alt="" />
-        </div>
-      </div>
+    // Living-room map as the party stage, then present/phone overlays.
+    const party =
+      actor(ART.mom.down, "hero epi-mom", 12, 12, 1.15) +
+      actor([ART.kid.holdCake], "hero epi-kid", 16, 12, 1.05) +
+      actor(ART.bf.down, "hero", 20, 13, 1) +
+      actor(ART.gf.down, "hero", 22, 13, 1);
+    const root = mapShell(
+      ART.living,
+      `<div class="epi-party" id="epi-party">${party}</div>
       <div class="epi-present" id="epi-present" hidden>
         <img class="present-hug" src="${ART.hug[1]}" alt="" />
         <div class="phone-back" id="phone-back">
@@ -347,8 +341,11 @@ const builders = {
       <div class="voucher" id="epi-voucher" hidden>
         <p>✦ Apple 兌換券 ✦</p>
         <small>週末有個小驚喜…或許是新手機？</small>
-      </div>
-    </div>`);
+      </div>`,
+      "vista--epi vista--living"
+    );
+    wireIdle(root);
+    return root;
   },
 
   "beach-card"() {
