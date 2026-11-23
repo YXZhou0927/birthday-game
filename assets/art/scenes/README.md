@@ -24,8 +24,11 @@ All furniture / landmarks must snap to whole tiles. Runtime placement uses `js/m
 | `pop_circus.png` | B1 POP CIRCUS / 星·奇·市 blind-box store |
 | `boutique_floor.png` | Big City 1F accessory boutique |
 | `campus_stairs.png` | Campus courtyard — lower stairs + landing |
+| `bedroom_future.png` | Future bedroom — center bed, right door (finale) |
 | `preview_sheet.png` | 3×2 labeled collage |
 | `README.md` | This doc |
+
+Furniture (shelves / tables / chairs) lives in `assets/art/props/` and is depth-sorted over empty floors (`pop_circus`, `yakiniku_interior`).
 
 ## Style rules (match yakiniku)
 
