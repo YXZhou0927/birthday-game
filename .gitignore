@@ -1,7 +1,13 @@
 # Keep personal full-res source photos out of git
 source-refs/
+private/
+**/private-photo*/
 *.jpg
 *.jpeg
+*.HEIC
+*.heic
+*.MOV
+*.mov
 .DS_Store
 .env
 .env.*
