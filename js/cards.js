@@ -1,9 +1,11 @@
+import { assertAccess } from "./access-gate.js";
 import { CARDS, CARD_ORDER } from "./cards-data.js";
 import {
   unlockAudio,
   playTrack,
   setMuted,
   isMuted,
+  isBgmPlaying,
   playSfx,
 } from "./audio.js";
 
@@ -164,22 +166,30 @@ async function ensureBgmForPage(id) {
   await playTrack(track);
 }
 
+function syncBgmButton(btn) {
+  const muted = isMuted() || !isBgmPlaying();
+  btn.classList.toggle("is-muted", muted);
+  btn.setAttribute("aria-pressed", muted ? "true" : "false");
+  btn.setAttribute("aria-label", muted ? "開啟背景音樂" : "關閉背景音樂");
+  btn.textContent = muted ? "音樂關" : "音樂開";
+}
+
 function wireBgmToggle(host) {
   const btn = $("#bgm-toggle", host);
   if (!btn) return;
+  syncBgmButton(btn);
   btn.addEventListener("click", async (e) => {
     e.stopPropagation();
     await unlockAudio();
-    const next = !isMuted();
-    setMuted(next);
-    btn.classList.toggle("is-muted", next);
-    btn.setAttribute("aria-pressed", next ? "true" : "false");
-    btn.setAttribute("aria-label", next ? "開啟背景音樂" : "關閉背景音樂");
-    btn.textContent = next ? "音樂關" : "音樂開";
-    if (!next) {
-      const id = host.querySelector(".card-stage")?.dataset.cardId;
-      await ensureBgmForPage(id || readPage());
+    const id = host.querySelector(".card-stage")?.dataset.cardId || readPage();
+    // First click (or while muted/silent) starts/resumes BGM; only mute when audible.
+    if (isMuted() || !isBgmPlaying()) {
+      setMuted(false);
+      await ensureBgmForPage(id);
+    } else {
+      setMuted(true);
     }
+    syncBgmButton(btn);
     playSfx("click");
   });
 }
@@ -233,9 +243,10 @@ function mount(id) {
   wireBgmToggle(host);
   wireCoupon(host, card);
 
-  const toggleCard = async () => {
+  const toggleCard = () => {
     requestLandscapeExperience();
-    await ensureBgmForPage(id);
+    // Card open/close must not start or switch BGM — only the music
+    // button or a scene (page) change may change music.
     const opening = !card.classList.contains("is-open");
     window.clearTimeout(flipTimer);
 
@@ -249,6 +260,7 @@ function mount(id) {
       flipTimer = window.setTimeout(() => {
         card.classList.add("is-cover-mid");
       }, FLIP_MID_MS);
+      // Soft whoosh only if audio already unlocked (do not unlock here)
       playSfx("whoosh");
     } else {
       card.classList.remove("is-open");
@@ -277,12 +289,16 @@ function mount(id) {
       playSfx("click");
       setPage(next);
       mount(next);
-      await ensureBgmForPage(next);
+      // Scene change may switch BGM (only if music is not muted).
+      if (!isMuted()) {
+        await ensureBgmForPage(next);
+      }
     });
   });
 }
 
-function boot() {
+async function boot() {
+  if (!(await assertAccess())) return;
   requestLandscapeExperience();
   const id = readPage();
   setPage(id);

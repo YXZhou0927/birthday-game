@@ -1,3 +1,4 @@
+import { assertAccess } from "./access-gate.js";
 import { GameEngine } from "./engine.js";
 import { resolveLevel, levels, defaultLevelId } from "../scripts/registry.js";
 
@@ -18,6 +19,8 @@ function readFlags() {
 }
 
 async function boot() {
+  if (!(await assertAccess())) return;
+
   const params = new URLSearchParams(window.location.search);
   const wantsGame =
     params.get("mode") === "game" ||

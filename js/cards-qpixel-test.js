@@ -4,6 +4,8 @@
  * Real photos are never loaded here — only generated pixel frames.
  */
 
+import { assertAccess } from "./access-gate.js";
+
 const FLIP_MID_MS = 450;
 
 const FRAMES = [
@@ -138,4 +140,9 @@ function mount() {
   });
 }
 
-mount();
+async function boot() {
+  if (!(await assertAccess())) return;
+  mount();
+}
+
+boot();
