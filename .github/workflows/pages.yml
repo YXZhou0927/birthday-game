@@ -16,10 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  # Split build/upload from deploy so deploy-pages can reliably find the
+  # github-pages artifact (avoids a known same-job artifact metadata race).
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,6 +41,13 @@ jobs:
         with:
           path: _site
 
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
