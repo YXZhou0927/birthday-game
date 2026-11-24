@@ -54,7 +54,7 @@ export const CARDS = {
     cover: "assets/art/cards/yakiniku/cover.png",
     coverTitle: "Happy Birthday",
     coverSub: "喜歡寶貝吃好吃的肉肉時笑的特別開心的樣子",
-    photo: "assets/art/cards/photos/yakiniku.png",
+    photo: "assets/art/cards/photos/yakiniku.gif",
     letter: [
       "安安，",
       "",
