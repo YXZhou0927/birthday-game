@@ -1,7 +1,18 @@
 /**
- * 巨城篇 — 娃娃、逛街、愛心 1–2 → 燒肉
+ * 巨城篇 — 娃娃、逛街、日落照片、愛心 1–2 → 燒肉
  */
 import { UNCLE_SHAWN } from "./places.js";
+
+const BIGCITY_PHOTO = [
+  "assets/art/bigcity-frames/01.png",
+  "assets/art/bigcity-frames/02.png",
+  "assets/art/bigcity-frames/03.png",
+  "assets/art/bigcity-frames/04.png",
+  "assets/art/bigcity-frames/05.png",
+  "assets/art/bigcity-frames/06.png",
+  "assets/art/bigcity-frames/07.png",
+  "assets/art/bigcity-frames/08.png",
+];
 
 export default {
   id: "big-city",
@@ -78,7 +89,24 @@ export default {
     { type: "heart", piece: 2 },
     {
       type: "narration",
-      text: "那天我們收穫滿滿。但冒險還沒結束——晚上，還要去吃最新歡的料理。",
+      text: "那天我們收穫滿滿。黃昏時分，還在巨城附近拍了一張照片——晚霞、花束，還有她笑得很開心的樣子。",
+    },
+    {
+      type: "reel",
+      mode: "fade",
+      frames: BIGCITY_PHOTO,
+      perFrameMs: 420,
+      fadeIn: 500,
+      fadeOut: 700,
+      holdEnd: 400,
+    },
+    {
+      type: "narration",
+      text: "後來每當翻到這張照片，我們都會想起那天的風，還有花香混著夕陽的味道。",
+    },
+    {
+      type: "narration",
+      text: "但冒險還沒結束——晚上，還要去吃最新歡的料理。",
     },
     {
       type: "narration",
