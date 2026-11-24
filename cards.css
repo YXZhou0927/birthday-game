@@ -22,8 +22,8 @@
   --ink: #2a1810;
   --edge: #5a3a24;
   --edge-hi: #d8c4a0;
-  --sticker: 52px;
-  --line: 36px; /* letter ruling = 3×12 for Cubic 11 */
+  --sticker: 80px;
+  --line: 36px; /* must equal letter-line height (3×12 for Cubic 11) */
   --text: 24px;
 }
 
@@ -42,6 +42,21 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: none;
   font-smooth: never;
+}
+
+/* Every bit of UI copy uses 俐方體11號 */
+.card-stage,
+.card-stage button,
+.card-stage p,
+.card-stage span,
+.card-nav__btn,
+.card-hint,
+.cover-title,
+.cover-sub,
+.cover-fold-hint,
+.photo-caption,
+.letter-line {
+  font-family: var(--card-font) !important;
 }
 
 #cards-root {
@@ -218,7 +233,8 @@ body {
 }
 
 .greeting-card.is-open .card-leaf--left {
-  transform: rotateY(-178deg);
+  /* Full flip so the cover face turns away and stays hidden */
+  transform: rotateY(-180deg);
 }
 
 .leaf-face {
@@ -246,6 +262,16 @@ body {
     inset 0 0 0 3px var(--edge-hi),
     inset 0 0 0 6px var(--edge),
     6px 6px 0 #1a1008;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+/* After the flip finishes, force-hide cover so it never shows through */
+.greeting-card.is-open .leaf-face--cover {
+  visibility: hidden;
+  pointer-events: none;
+  /* Match .card-leaf--left flip duration so cover stays until fully turned away */
+  transition-delay: 0.9s;
 }
 
 .leaf-face--photo {
@@ -254,7 +280,8 @@ body {
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
   border-right: 0;
   transform: rotateY(180deg);
-  padding: 18px;
+  padding: calc(var(--sticker) * 0.4) calc(var(--sticker) * 0.35)
+    calc(var(--sticker) * 0.35) 18px;
   gap: 10px;
   box-shadow:
     inset 0 0 0 3px var(--edge-hi),
@@ -316,23 +343,24 @@ body {
 
 .cover-title {
   margin: 0;
-  font-family: var(--card-font);
   font-size: 24px;
   letter-spacing: 0.06em;
   text-align: center;
-  line-height: 1.25;
+  line-height: 36px;
   color: var(--ink);
 }
 
 .cover-sub {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
+  line-height: 36px;
   color: #6a4530;
 }
 
 .cover-fold-hint {
   margin: 8px 0 0;
   font-size: 16px;
+  line-height: 24px;
   color: rgba(90, 58, 40, 0.7);
 }
 
@@ -358,34 +386,35 @@ body {
 .photo-caption {
   margin: 0;
   font-size: 16px;
+  line-height: 24px;
   opacity: 0.7;
 }
 
 .letter-sheet {
   flex: 1;
-  padding: 4px 8px;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(var(--line) - 2px),
-    rgba(80, 50, 40, 0.22) calc(var(--line) - 2px),
-    rgba(80, 50, 40, 0.22) var(--line)
-  );
-  background-position: 0 20px;
+  /* Clear edge stickers (~half of --sticker sits inside the card) */
+  padding: calc(var(--sticker) * 0.45) calc(var(--sticker) * 0.4)
+    calc(var(--sticker) * 0.35) 8px;
   overflow: auto;
+  /* lines come from each .letter-line border — same height as text row */
+  background: transparent;
 }
 
 .letter-line {
   margin: 0;
-  min-height: var(--line);
+  height: var(--line);
   line-height: var(--line);
   font-size: var(--text);
   letter-spacing: 0.04em;
   color: var(--ink);
+  /* Ruled mark drawn inside the row so height stays exactly --line */
+  box-shadow: inset 0 -2px 0 rgba(80, 50, 40, 0.28);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .letter-line--blank {
-  opacity: 0;
+  color: transparent;
 }
 
 /* Stickers: centers sit on the outer card border */
@@ -408,7 +437,8 @@ body {
   height: var(--sticker);
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+  /* PNG already has white plate + dark border; hard pixel shadow */
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.45));
 }
 
 /* Centers sit on the outer border → sticker pressed on the edge */
@@ -442,17 +472,15 @@ body {
   :root {
     --open-w: min(94vw, 1280px);
     --open-h: min(68vh, 780px);
-    --sticker: 40px;
+    --sticker: 64px;
     --text: 20px;
     --line: 30px;
   }
 
-  .cover-title {
-    font-size: 20px;
-  }
-
+  .cover-title,
   .cover-sub {
-    font-size: 16px;
+    font-size: 20px;
+    line-height: 30px;
   }
 }
 
