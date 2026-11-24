@@ -128,7 +128,6 @@ body {
 .card-hint,
 .cover-title,
 .cover-sub,
-.cover-fold-hint,
 .letter-line {
   font-family: var(--card-font) !important;
 }
@@ -322,14 +321,20 @@ body {
     inset 0 0 0 3px var(--edge-hi),
     inset 0 0 0 6px var(--edge),
     6px 6px 0 #1a1008;
-  visibility: visible;
-  transition: visibility 0s linear 0s;
 }
 
-.greeting-card.is-open .leaf-face--cover {
-  visibility: hidden;
-  pointer-events: none;
-  transition-delay: 0.9s;
+/* Cover logo/title fade at flip midpoint (toggled via JS .is-cover-mid) */
+.cover-logo,
+.cover-title,
+.cover-sub {
+  opacity: 1;
+  transition: opacity 0.14s ease;
+}
+
+.greeting-card.is-cover-mid .cover-logo,
+.greeting-card.is-cover-mid .cover-title,
+.greeting-card.is-cover-mid .cover-sub {
+  opacity: 0;
 }
 
 .leaf-face--photo {
@@ -463,7 +468,7 @@ body {
 }
 
 .cover-logo {
-  width: min(62%, 240px);
+  width: min(72%, 280px);
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -484,14 +489,6 @@ body {
   font-size: 24px;
   line-height: 36px;
   color: var(--ink-muted);
-}
-
-.cover-fold-hint {
-  margin: 8px 0 0;
-  font-size: 16px;
-  line-height: 24px;
-  color: var(--ink-muted);
-  opacity: 0.72;
 }
 
 .photo-frame {
