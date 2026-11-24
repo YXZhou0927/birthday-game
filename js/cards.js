@@ -1,6 +1,5 @@
 import { CARDS, CARD_ORDER } from "./cards-data.js";
 
-const FLIP_MS = 900;
 const FLIP_MID_MS = 450;
 
 function $(sel, root = document) {
@@ -50,8 +49,6 @@ function buildCard(data) {
       }).join("")}
     </nav>
 
-    <p class="card-hint" id="card-hint">點擊卡片往左掀開</p>
-
     <button type="button" class="greeting-card" id="greeting-card" aria-expanded="false" aria-label="生日卡，點擊往左掀開">
       <div class="greeting-card__book">
         <!-- Right leaf: letter -->
@@ -66,7 +63,7 @@ function buildCard(data) {
         <div class="card-leaf card-leaf--left">
           <div class="leaf-face leaf-face--cover">
             <div class="cover-frame">
-              <img class="cover-logo" src="${data.cover}?v=orig1" alt="" draggable="false" />
+              <img class="cover-logo" src="${data.cover}?v=home1" alt="" draggable="false" />
               <p class="cover-title">${escapeHtml(data.coverTitle)}</p>
               <p class="cover-sub">${escapeHtml(data.coverSub)}</p>
             </div>
@@ -83,6 +80,36 @@ function buildCard(data) {
   </div>`;
 }
 
+function isMobileLike() {
+  return (
+    window.matchMedia("(max-width: 900px), (pointer: coarse)").matches ||
+    window.matchMedia("(orientation: portrait) and (max-width: 900px)").matches
+  );
+}
+
+/** Prefer native landscape on phones; CSS rotates the stage as fallback. */
+async function requestLandscapeExperience() {
+  if (!isMobileLike()) return;
+
+  try {
+    const root = document.documentElement;
+    if (!document.fullscreenElement && root.requestFullscreen) {
+      await root.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+    }
+  } catch {
+    /* fullscreen may be blocked until a gesture; ignore */
+  }
+
+  try {
+    const orientation = screen.orientation;
+    if (orientation && typeof orientation.lock === "function") {
+      await orientation.lock("landscape").catch(() => {});
+    }
+  } catch {
+    /* iOS / desktop often disallow lock; CSS fallback handles layout */
+  }
+}
+
 function mount(id) {
   const data = CARDS[id];
   const host = $("#cards-root");
@@ -91,7 +118,6 @@ function mount(id) {
   document.documentElement.dataset.cardTheme = id;
 
   const card = $("#greeting-card");
-  const hint = $("#card-hint");
   let flipTimer = 0;
 
   requestAnimationFrame(() => {
@@ -99,31 +125,29 @@ function mount(id) {
   });
 
   card.addEventListener("click", () => {
+    requestLandscapeExperience();
     const opening = !card.classList.contains("is-open");
     window.clearTimeout(flipTimer);
 
     if (opening) {
       card.classList.add("is-open");
       card.setAttribute("aria-expanded", "true");
-      // Hide cover logo/title at flip midpoint
       flipTimer = window.setTimeout(() => {
         card.classList.add("is-cover-mid");
       }, FLIP_MID_MS);
-      if (hint) hint.textContent = "再點一次可合上";
     } else {
       card.classList.remove("is-open");
       card.setAttribute("aria-expanded", "false");
-      // Reveal cover logo/title at flip midpoint while closing
       flipTimer = window.setTimeout(() => {
         card.classList.remove("is-cover-mid");
       }, FLIP_MID_MS);
-      if (hint) hint.textContent = "點擊卡片往左掀開";
     }
   });
 
   host.querySelectorAll("[data-goto]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
+      requestLandscapeExperience();
       const next = btn.getAttribute("data-goto");
       if (!next || next === id) return;
       window.clearTimeout(flipTimer);
@@ -134,6 +158,8 @@ function mount(id) {
 }
 
 function boot() {
+  // Best-effort on load (often ignored without gesture); gesture handlers retry.
+  requestLandscapeExperience();
   const id = readPage();
   setPage(id);
   mount(id);
