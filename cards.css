@@ -22,7 +22,7 @@
   --ink: #2a1810;
   --edge: #5a3a24;
   --edge-hi: #d8c4a0;
-  --sticker: 80px;
+  --sticker: 108px;
   --line: 36px; /* must equal letter-line height (3×12 for Cubic 11) */
   --text: 24px;
 }
@@ -402,13 +402,21 @@ body {
 
 .letter-line {
   margin: 0;
+  padding: 0;
   height: var(--line);
   line-height: var(--line);
   font-size: var(--text);
   letter-spacing: 0.04em;
   color: var(--ink);
-  /* Ruled mark drawn inside the row so height stays exactly --line */
-  box-shadow: inset 0 -2px 0 rgba(80, 50, 40, 0.28);
+  /* One rule per text row — period equals --line / line-height */
+  background-image: linear-gradient(
+    to top,
+    rgba(80, 50, 40, 0.55) 0,
+    rgba(80, 50, 40, 0.55) 3px,
+    transparent 3px
+  );
+  background-size: 100% var(--line);
+  background-repeat: repeat-y;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -472,7 +480,7 @@ body {
   :root {
     --open-w: min(94vw, 1280px);
     --open-h: min(68vh, 780px);
-    --sticker: 64px;
+    --sticker: 84px;
     --text: 20px;
     --line: 30px;
   }

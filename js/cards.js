@@ -37,7 +37,7 @@ function iconsHtml(urls) {
   return urls
     .map(
       (src, i) =>
-        `<img class="card-deco card-deco--${i}" src="${src}?v=sticker2" alt="" draggable="false" />`
+        `<img class="card-deco card-deco--${i}" src="${src}?v=sticker5" alt="" draggable="false" />`
     )
     .join("");
 }
