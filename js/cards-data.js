@@ -1,4 +1,4 @@
-/** Three themed greeting-card pages (no longer a game vista). */
+/** Themed greeting-card pages (no longer a game vista). */
 
 export const CARDS = {
   "big-city": {
@@ -8,7 +8,7 @@ export const CARDS = {
     bg: "assets/art/scenes/big_city_plaza.png",
     cover: "assets/art/cards/bigcity/cover.png",
     coverTitle: "Happy Birthday",
-    coverSub: "聖誕巨城篇",
+    coverSub: "有買到喜歡的東西嗎？",
     photo: "assets/art/cards/photos/bigcity.png",
     letter: [
       "安安，生日快樂。",
@@ -31,7 +31,7 @@ export const CARDS = {
     bg: "assets/art/scenes/pop_circus.png",
     cover: "assets/art/cards/boutique/cover.png",
     coverTitle: "Happy Birthday",
-    coverSub: "娃娃店篇",
+    coverSub: "我們又有新夥伴了！",
     photo: "assets/art/cards/photos/boutique.png",
     letter: [
       "給最愛軟綿綿的安安——",
@@ -53,7 +53,7 @@ export const CARDS = {
     bg: "assets/art/scenes/yakiniku_interior.png",
     cover: "assets/art/cards/yakiniku/cover.png",
     coverTitle: "Happy Birthday",
-    coverSub: "香氣十足篇",
+    coverSub: "喜歡寶貝吃好吃的肉肉時笑的特別開心的樣子",
     photo: "assets/art/cards/photos/yakiniku.png",
     letter: [
       "安安，",
@@ -68,6 +68,28 @@ export const CARDS = {
       "乾杯，生日快樂。",
     ],
   },
+  home: {
+    id: "home",
+    title: "我們的家",
+    themeClass: "card-theme--home",
+    bg: "assets/art/scenes/bedroom_future.png",
+    cover: "assets/art/cards/home/cover.png",
+    coverTitle: "Happy Birthday",
+    coverSub: "寶貝，我愛妳！",
+    photo: "assets/art/cards/photos/home.png",
+    letter: [
+      "安安，",
+      "",
+      "推開家門，燈還亮著，",
+      "蛋糕上的小愛心也亮著。",
+      "這裡是我們的小窩，",
+      "也是妳可以放心變軟的地方。",
+      "",
+      "寶貝，我愛妳。",
+      "生日快樂。",
+      "—— 周",
+    ],
+  },
 };
 
-export const CARD_ORDER = ["big-city", "boutique", "restaurant"];
+export const CARD_ORDER = ["big-city", "boutique", "restaurant", "home"];
