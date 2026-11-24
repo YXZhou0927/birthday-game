@@ -10,14 +10,6 @@ export const CARDS = {
     coverTitle: "Happy Birthday",
     coverSub: "聖誕巨城篇",
     photo: "assets/art/cards/photos/bigcity.png",
-    photoCaption: "pixel/01 · 可替換",
-    icons: [
-      "assets/art/cards/bigcity/perfume.png",
-      "assets/art/cards/bigcity/lipstick.png",
-      "assets/art/cards/bigcity/bag.png",
-      "assets/art/cards/bigcity/necklace.png",
-      "assets/art/cards/bigcity/ring.png",
-    ],
     letter: [
       "安安，生日快樂。",
       "",
@@ -41,14 +33,6 @@ export const CARDS = {
     coverTitle: "Happy Birthday",
     coverSub: "Boutique 篇",
     photo: "assets/art/cards/photos/boutique.png",
-    photoCaption: "pixel/03 · 可替換",
-    icons: [
-      "assets/art/cards/boutique/cinnamoroll.png",
-      "assets/art/cards/boutique/labubu.png",
-      "assets/art/cards/boutique/bunny.png",
-      "assets/art/cards/boutique/bear.png",
-      "assets/art/cards/boutique/egg.png",
-    ],
     letter: [
       "給最愛軟綿綿的安安——",
       "",
@@ -71,12 +55,6 @@ export const CARDS = {
     coverTitle: "Happy Birthday",
     coverSub: "香氣十足篇",
     photo: "assets/art/cards/photos/yakiniku.png",
-    photoCaption: "pixel/05 · 可替換",
-    icons: [
-      "assets/art/cards/yakiniku/skewer.png",
-      "assets/art/cards/yakiniku/meat.png",
-      "assets/art/cards/yakiniku/tongs.png",
-    ],
     letter: [
       "安安，",
       "",
