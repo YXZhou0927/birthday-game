@@ -56,32 +56,33 @@ function buildCard(data) {
       }).join("")}
     </nav>
 
-    <p class="card-hint" id="card-hint">點擊卡片翻開 ✦</p>
+    <p class="card-hint" id="card-hint">點擊卡片往左掀開 ✦</p>
 
-    <button type="button" class="greeting-card is-enter" id="greeting-card" aria-expanded="false" aria-label="生日卡，點擊翻開">
+    <button type="button" class="greeting-card" id="greeting-card" aria-expanded="false" aria-label="生日卡，點擊往左掀開">
       <div class="greeting-card__book">
-        <div class="greeting-card__cover">
-          <div class="cover-frame">
-            <img class="cover-logo" src="${data.cover}" alt="" draggable="false" />
-            <p class="cover-title">${escapeHtml(data.coverTitle)}</p>
-            <p class="cover-sub">${escapeHtml(data.coverSub)}</p>
+        <!-- Right leaf: letter (visible after open; under cover when closed) -->
+        <div class="card-leaf card-leaf--right">
+          ${iconsHtml(data.icons)}
+          <div class="letter-sheet">
+            ${letterHtml(data.letter)}
           </div>
         </div>
 
-        <div class="greeting-card__inside" aria-hidden="true">
-          <div class="card-spread">
-            ${iconsHtml(data.icons)}
-            <div class="card-page card-page--photo">
-              <div class="photo-frame">
-                <img class="photo-img" src="${data.photo}" alt="卡片照片" draggable="false" />
-              </div>
-              <p class="photo-caption">${escapeHtml(data.photoCaption)}</p>
+        <!-- Left leaf: hinged at spine; cover front → flips left to show photo -->
+        <div class="card-leaf card-leaf--left">
+          <div class="leaf-face leaf-face--cover">
+            <div class="cover-frame">
+              <img class="cover-logo" src="${data.cover}" alt="" draggable="false" />
+              <p class="cover-title">${escapeHtml(data.coverTitle)}</p>
+              <p class="cover-sub">${escapeHtml(data.coverSub)}</p>
+              <p class="cover-fold-hint">左右對折 · 點擊掀開</p>
             </div>
-            <div class="card-page card-page--letter">
-              <div class="letter-sheet">
-                ${letterHtml(data.letter)}
-              </div>
+          </div>
+          <div class="leaf-face leaf-face--photo">
+            <div class="photo-frame">
+              <img class="photo-img" src="${data.photo}" alt="卡片照片" draggable="false" />
             </div>
+            <p class="photo-caption">${escapeHtml(data.photoCaption)}</p>
           </div>
         </div>
       </div>
@@ -98,9 +99,7 @@ function mount(id) {
 
   const card = $("#greeting-card");
   const hint = $("#card-hint");
-  const inside = host.querySelector(".greeting-card__inside");
 
-  // float in from right
   requestAnimationFrame(() => {
     card.classList.add("is-visible");
   });
@@ -108,8 +107,9 @@ function mount(id) {
   card.addEventListener("click", () => {
     const open = card.classList.toggle("is-open");
     card.setAttribute("aria-expanded", open ? "true" : "false");
-    if (inside) inside.setAttribute("aria-hidden", open ? "false" : "true");
-    if (hint) hint.textContent = open ? "再點一次可合上 ✦" : "點擊卡片翻開 ✦";
+    if (hint) {
+      hint.textContent = open ? "再點一次可合上 ✦" : "點擊卡片往左掀開 ✦";
+    }
   });
 
   host.querySelectorAll("[data-goto]").forEach((btn) => {
