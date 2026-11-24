@@ -76,7 +76,7 @@ export const CARDS = {
     cover: "assets/art/cards/home/cover.png",
     coverTitle: "Happy Birthday",
     coverSub: "寶貝，我愛妳！",
-    photo: "assets/art/cards/photos/home.png",
+    photo: "assets/art/cards/photos/home.gif",
     letter: [
       "安安，",
       "",

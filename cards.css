@@ -125,6 +125,13 @@
   --nav-border: #e85a7a;
 }
 
+/* Bedroom photo is pixel/01–08 merged GIF at 560×420 (4:3) */
+.card-theme--home .photo-frame {
+  width: min(86%, calc(var(--open-h) * 0.78));
+  aspect-ratio: 4 / 3;
+  max-height: min(86%, 100%);
+}
+
 * {
   box-sizing: border-box;
 }
