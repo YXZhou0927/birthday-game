@@ -32,7 +32,7 @@ export const CARDS = {
     cover: "assets/art/cards/boutique/cover.png",
     coverTitle: "Happy Birthday",
     coverSub: "我們又有新夥伴了！",
-    photo: "assets/art/cards/photos/boutique.png",
+    photo: "assets/art/cards/photos/boutique.gif",
     letter: [
       "給最愛軟綿綿的安安——",
       "",
