@@ -543,12 +543,12 @@ body {
 .photo-frame {
   position: relative;
   z-index: 1;
-  /* Square matte matching card photo assets (480×480) */
+  /* Portrait matte ~3:4 (Live / iPhone still); square assets letterbox until replaced */
   flex: 0 1 auto;
-  width: min(88%, calc(var(--open-h) * 0.72));
+  width: min(72%, calc(var(--open-h) * 0.55));
   max-width: 100%;
-  aspect-ratio: 1 / 1;
-  max-height: min(86%, 100%);
+  aspect-ratio: 3 / 4;
+  max-height: min(88%, 100%);
   height: auto;
   display: flex;
   align-items: center;
@@ -573,39 +573,54 @@ body {
 }
 
 .letter-sheet {
+  /* Keep pad-top in sync with background-position so rules line up with text rows */
+  --sheet-pad-top: 20px;
+  --sheet-pad-right: 16px;
+  --sheet-pad-bottom: 16px;
+  --sheet-pad-left: 20px;
   position: relative;
   z-index: 1;
   flex: 1;
   min-height: 0;
   /* Clear decorative .inner-frame on top/left (and other sides) */
-  padding: 20px 16px 16px 20px;
+  padding: var(--sheet-pad-top) var(--sheet-pad-right) var(--sheet-pad-bottom)
+    var(--sheet-pad-left);
   overflow: auto;
+  /* Rule sits at the bottom of each --line band; text is centered in the band above it */
   background-image: linear-gradient(
     to bottom,
+    transparent 0,
     transparent calc(var(--line) - 2px),
     var(--rule) calc(var(--line) - 2px),
     var(--rule) var(--line)
   );
   background-size: 100% var(--line);
+  background-position: 0 var(--sheet-pad-top);
+  background-repeat: repeat-y;
   background-attachment: local;
 }
 
 .letter-line {
   margin: 0;
   padding: 0 2px;
+  box-sizing: border-box;
   min-height: var(--line);
-  line-height: var(--line);
   font-size: var(--text);
+  /* One text row per ruled band; half-leading keeps glyphs between rules */
+  line-height: var(--line);
   letter-spacing: 0.02em;
   color: var(--ink);
   overflow-wrap: anywhere;
   word-break: break-word;
   white-space: normal;
+  /* Cubic 11 sits low in the em box — lift glyphs into the band above the 2px rule */
+  transform: translateY(-0.18em);
 }
 
 .letter-line--blank {
   color: transparent;
   min-height: var(--line);
+  transform: none;
 }
 
 /* Home theme inner frame accent */
@@ -858,11 +873,14 @@ body {
 
   /* Extra inset so glyphs clear the decorative frame */
   .letter-sheet {
-    padding: 18px 14px 14px 18px;
+    --sheet-pad-top: 18px;
+    --sheet-pad-right: 14px;
+    --sheet-pad-bottom: 14px;
+    --sheet-pad-left: 18px;
   }
 
   .photo-frame {
-    width: min(84%, calc(var(--open-h) * 0.68));
+    width: min(70%, calc(var(--open-h) * 0.52));
   }
 
   .coupon-card__title {
@@ -925,11 +943,14 @@ body {
   }
 
   .letter-sheet {
-    padding: 16px 12px 12px 16px;
+    --sheet-pad-top: 16px;
+    --sheet-pad-right: 12px;
+    --sheet-pad-bottom: 12px;
+    --sheet-pad-left: 16px;
   }
 
   .photo-frame {
-    width: min(78%, calc(var(--open-h) * 0.62));
+    width: min(68%, calc(var(--open-h) * 0.5));
   }
 
   .card-nav {

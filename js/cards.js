@@ -167,7 +167,8 @@ async function ensureBgmForPage(id) {
 }
 
 function syncBgmButton(btn) {
-  const muted = isMuted() || !isBgmPlaying();
+  // Reflect mute intent (default = on), even if the browser has not allowed playback yet.
+  const muted = isMuted();
   btn.classList.toggle("is-muted", muted);
   btn.setAttribute("aria-pressed", muted ? "true" : "false");
   btn.setAttribute("aria-label", muted ? "開啟背景音樂" : "關閉背景音樂");
@@ -182,8 +183,7 @@ function wireBgmToggle(host) {
     e.stopPropagation();
     await unlockAudio();
     const id = host.querySelector(".card-stage")?.dataset.cardId || readPage();
-    // First click (or while muted/silent) starts/resumes BGM; only mute when audible.
-    if (isMuted() || !isBgmPlaying()) {
+    if (isMuted()) {
       setMuted(false);
       await ensureBgmForPage(id);
     } else {
@@ -297,12 +297,32 @@ function mount(id) {
   });
 }
 
+/** Start page BGM when unmuted; arm one gesture unlock if autoplay is blocked. */
+function startDefaultBgm(id) {
+  setMuted(false);
+  const syncBtn = () => {
+    const btn = $("#bgm-toggle");
+    if (btn) syncBgmButton(btn);
+  };
+  ensureBgmForPage(id).finally(syncBtn);
+
+  const unlockOnce = async () => {
+    document.removeEventListener("pointerdown", unlockOnce, true);
+    if (isMuted() || isBgmPlaying()) return;
+    await ensureBgmForPage(readPage());
+    syncBtn();
+  };
+  document.addEventListener("pointerdown", unlockOnce, true);
+}
+
 async function boot() {
   if (!(await assertAccess())) return;
   requestLandscapeExperience();
   const id = readPage();
   setPage(id);
   mount(id);
+  // Default: music on at page open (gesture fallback if browser blocks autoplay)
+  startDefaultBgm(id);
 }
 
 boot();
