@@ -1,0 +1,419 @@
+/* Greeting-card pages — scene bg + foldable Q-pixel card */
+
+@import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap");
+
+:root {
+  --card-font: "DotGothic16", "Fusion Pixel", "Cubic 11", "PingFang TC", sans-serif;
+  --card-en: "Press Start 2P", "DotGothic16", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #120e0c;
+  color: #2a1c16;
+  font-family: var(--card-font);
+  overflow: hidden;
+}
+
+#cards-root {
+  height: 100%;
+}
+
+.card-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 0;
+}
+
+.card-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    rgba(10, 8, 12, 0.15) 0%,
+    rgba(10, 8, 12, 0.35) 55%,
+    rgba(10, 8, 12, 0.55) 100%
+  );
+}
+
+.card-nav {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.35rem;
+  background: rgba(18, 12, 10, 0.55);
+  border: 2px solid rgba(255, 240, 220, 0.25);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+
+.card-nav__btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: transparent;
+  color: #f6efe4;
+  font-family: var(--card-font);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+}
+
+.card-nav__btn.is-active {
+  background: rgba(255, 245, 230, 0.92);
+  color: #3a2418;
+}
+
+.card-hint {
+  position: absolute;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  margin: 0;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(18, 12, 10, 0.55);
+  color: #f6efe4;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+}
+
+/* —— foldable card —— */
+.greeting-card {
+  position: relative;
+  z-index: 5;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  width: min(92vw, 560px);
+  aspect-ratio: 5 / 3.4;
+  perspective: 1600px;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s ease;
+}
+
+.greeting-card.is-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.greeting-card__book {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.greeting-card__cover,
+.greeting-card__inside {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+}
+
+.greeting-card__cover {
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  transform-origin: left center;
+  transition: transform 0.9s cubic-bezier(0.4, 0.05, 0.2, 1);
+  backface-visibility: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.greeting-card.is-open .greeting-card__cover {
+  transform: rotateY(-168deg);
+}
+
+.greeting-card__inside {
+  z-index: 2;
+  overflow: hidden;
+}
+
+.cover-frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 1rem;
+  border-radius: 10px;
+  border: 4px solid transparent;
+  background-clip: padding-box;
+}
+
+.cover-logo {
+  width: min(46%, 168px);
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.25));
+}
+
+.cover-title {
+  margin: 0;
+  font-family: var(--card-en);
+  font-size: clamp(0.55rem, 2.4vw, 0.78rem);
+  letter-spacing: 0.04em;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.cover-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.card-spread {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-page {
+  position: relative;
+  min-width: 0;
+  padding: 0.7rem;
+}
+
+.card-page--photo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-right: 2px dashed rgba(0, 0, 0, 0.12);
+}
+
+.photo-frame {
+  width: 86%;
+  aspect-ratio: 1;
+  border: 3px solid rgba(60, 40, 30, 0.35);
+  background: rgba(255, 255, 255, 0.35);
+  padding: 4px;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
+
+.photo-caption {
+  margin: 0;
+  font-size: 0.65rem;
+  opacity: 0.65;
+  letter-spacing: 0.04em;
+}
+
+.card-page--letter {
+  display: flex;
+  padding-right: 1.1rem;
+}
+
+.letter-sheet {
+  flex: 1;
+  padding: 0.55rem 0.85rem 0.7rem 0.55rem;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 1.55rem,
+    rgba(80, 50, 40, 0.18) 1.55rem,
+    rgba(80, 50, 40, 0.18) calc(1.55rem + 1px)
+  );
+  background-position: 0 1.7rem;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+.letter-line {
+  margin: 0;
+  min-height: 1.55rem;
+  line-height: 1.55rem;
+  font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+  letter-spacing: 0.03em;
+  color: #2c1a14;
+}
+
+.letter-line--blank {
+  opacity: 0;
+}
+
+/* edge deco icons */
+.card-deco {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 4;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+  animation: deco-bob 2.8s ease-in-out infinite;
+}
+
+/* Keep deco on outer corners so letter lines stay readable */
+.card-deco--0 { top: 3%; left: 2%; animation-delay: 0s; }
+.card-deco--1 { top: 3%; right: 2%; animation-delay: 0.3s; }
+.card-deco--2 { bottom: 3%; left: 2%; animation-delay: 0.55s; }
+.card-deco--3 { bottom: 3%; right: 2%; animation-delay: 0.8s; }
+.card-deco--4 { top: 48%; left: 48%; width: 26px; height: 26px; opacity: 0.9; animation-delay: 1s; }
+
+@keyframes deco-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* —— themes: paper color + border —— */
+.card-theme--bigcity .greeting-card__cover .cover-frame {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.18), transparent 45%),
+    linear-gradient(160deg, #6f1d1b 0%, #9b2c2c 40%, #3d0c0a 100%);
+  border-color: #f0d78c;
+  box-shadow:
+    inset 0 0 0 3px #7a1f1c,
+    inset 0 0 0 7px #c9a227;
+}
+
+.card-theme--bigcity .cover-title,
+.card-theme--bigcity .cover-sub {
+  color: #fff4d6;
+  text-shadow: 0 2px 0 #4a1010;
+}
+
+.card-theme--bigcity .card-spread {
+  background: linear-gradient(180deg, #fff6e8 0%, #f3e0c8 100%);
+  border: 4px solid #c9a227;
+  box-shadow: inset 0 0 0 3px #8b1e1a;
+}
+
+.card-theme--boutique .greeting-card__cover .cover-frame {
+  background:
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.45), transparent 40%),
+    linear-gradient(165deg, #fff5f8 0%, #f7c9d8 45%, #e8a0b8 100%);
+  border-color: #ffffff;
+  box-shadow:
+    inset 0 0 0 3px #f0a8c0,
+    inset 0 0 0 7px #fff;
+}
+
+.card-theme--boutique .cover-title {
+  color: #6b3a55;
+  text-shadow: 0 1px 0 #fff;
+}
+
+.card-theme--boutique .cover-sub {
+  color: #8a5068;
+}
+
+.card-theme--boutique .card-spread {
+  background: linear-gradient(180deg, #fffafc 0%, #ffe8f0 100%);
+  border: 4px solid #f0a8c0;
+  box-shadow: inset 0 0 0 3px #fff;
+}
+
+.card-theme--yakiniku .greeting-card__cover .cover-frame {
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 180, 80, 0.35), transparent 50%),
+    linear-gradient(165deg, #5a2e1a 0%, #8b4518 40%, #2a140c 100%);
+  border-color: #e8c07a;
+  box-shadow:
+    inset 0 0 0 3px #3d1c10,
+    inset 0 0 0 7px #c4783a;
+}
+
+.card-theme--yakiniku .cover-title,
+.card-theme--yakiniku .cover-sub {
+  color: #ffe9c2;
+  text-shadow: 0 2px 0 #2a140c;
+}
+
+.card-theme--yakiniku .card-spread {
+  background: linear-gradient(180deg, #fff4e6 0%, #edd5b0 100%);
+  border: 4px solid #c4783a;
+  box-shadow: inset 0 0 0 3px #5a2e1a;
+}
+
+@media (max-width: 640px) {
+  .greeting-card {
+    width: min(96vw, 420px);
+    aspect-ratio: 4 / 3.2;
+  }
+
+  .card-deco {
+    width: 28px;
+    height: 28px;
+  }
+
+  .letter-line {
+    font-size: 0.7rem;
+  }
+
+  .card-nav__btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greeting-card,
+  .greeting-card__cover,
+  .card-deco {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .greeting-card {
+    transform: none;
+    opacity: 1;
+  }
+}
