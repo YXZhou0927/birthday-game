@@ -60,15 +60,17 @@ function buildCard(data) {
 
     <button type="button" class="greeting-card" id="greeting-card" aria-expanded="false" aria-label="生日卡，點擊往左掀開">
       <div class="greeting-card__book">
-        <!-- Right leaf: letter (visible after open; under cover when closed) -->
+        <!-- Stickers sit on the outer card edge (centers on border) -->
+        <div class="card-stickers" aria-hidden="true">${iconsHtml(data.icons)}</div>
+
+        <!-- Right leaf: letter -->
         <div class="card-leaf card-leaf--right">
-          ${iconsHtml(data.icons)}
           <div class="letter-sheet">
             ${letterHtml(data.letter)}
           </div>
         </div>
 
-        <!-- Left leaf: hinged at spine; cover front → flips left to show photo -->
+        <!-- Left leaf: cover front → flips left to show photo -->
         <div class="card-leaf card-leaf--left">
           <div class="leaf-face leaf-face--cover">
             <div class="cover-frame">

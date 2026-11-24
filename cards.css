@@ -1,22 +1,30 @@
-/* Basic greeting-card layout prototype
- * Closed: portrait folded card (tall rectangle)
- * Open: flips left, spreads flat ~70% of viewport, keeps a spine crease
+/* Basic greeting-card layout
+ * Font: 俐方體11號 (Cubic 11) — sizes prefer multiples of 12px
+ * Closed: portrait fold · Open: flip left to ~70% with spine crease
  */
 
-@import url("https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap");
+@font-face {
+  font-family: "俐方體11號";
+  src: url("assets/fonts/cubic-11/Cubic_11.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  --card-font: "DotGothic16", "PingFang TC", "Noto Sans TC", sans-serif;
-  --card-en: "Press Start 2P", "DotGothic16", monospace;
-  /* Open spread targets ~七成 of the visible stage */
+  --card-font: "俐方體11號", "Cubic 11", sans-serif;
+  /* Open spread ~七成 */
   --open-w: min(80vw, 1280px);
   --open-h: min(74vh, 820px);
   --leaf-w: calc(var(--open-w) / 2);
-  --paper: #f7f0e4;
-  --paper-2: #efe4d2;
-  --ink: #2c1a14;
-  --edge: #c4a882;
-  --spine: rgba(80, 50, 30, 0.22);
+  --paper: #f4ebd8;
+  --paper-2: #e8d9c0;
+  --ink: #2a1810;
+  --edge: #5a3a24;
+  --edge-hi: #d8c4a0;
+  --sticker: 52px;
+  --line: 36px; /* letter ruling = 3×12 for Cubic 11 */
+  --text: 24px;
 }
 
 * {
@@ -30,7 +38,10 @@ body {
   background: #120e0c;
   color: var(--ink);
   font-family: var(--card-font);
+  font-size: var(--text);
   overflow: hidden;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
 }
 
 #cards-root {
@@ -73,29 +84,28 @@ body {
   transform: translateX(-50%);
   z-index: 20;
   display: flex;
-  gap: 0.4rem;
-  padding: 0.35rem;
-  background: rgba(18, 12, 10, 0.55);
-  border: 2px solid rgba(255, 240, 220, 0.25);
-  border-radius: 999px;
-  backdrop-filter: blur(6px);
+  gap: 4px;
+  padding: 4px;
+  background: #1a1210;
+  border: 4px solid #f0e2c8;
+  box-shadow: 4px 4px 0 #000;
 }
 
 .card-nav__btn {
   appearance: none;
   border: 0;
   cursor: pointer;
-  padding: 0.45rem 0.85rem;
-  border-radius: 999px;
+  padding: 8px 14px;
   background: transparent;
   color: #f6efe4;
   font-family: var(--card-font);
-  font-size: 0.85rem;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .card-nav__btn.is-active {
-  background: rgba(255, 245, 230, 0.92);
-  color: #3a2418;
+  background: #f6efe4;
+  color: #2a1810;
 }
 
 .card-hint {
@@ -105,15 +115,16 @@ body {
   transform: translateX(-50%);
   z-index: 20;
   margin: 0;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(18, 12, 10, 0.55);
+  padding: 8px 14px;
+  background: #1a1210;
+  border: 3px solid #f0e2c8;
   color: #f6efe4;
-  font-size: 0.8rem;
+  font-size: 16px;
   pointer-events: none;
+  box-shadow: 3px 3px 0 #000;
 }
 
-/* —— shell: closed = half width (portrait); open = full ~70% —— */
+/* —— shell —— */
 .greeting-card {
   position: relative;
   z-index: 5;
@@ -125,8 +136,8 @@ body {
   height: var(--open-h);
   perspective: 2200px;
   overflow: hidden;
-  border-radius: 6px;
-  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.45);
+  border-radius: 0;
+  box-shadow: 8px 10px 0 rgba(0, 0, 0, 0.55);
   transform: translateX(120%);
   opacity: 0;
   transition:
@@ -156,7 +167,17 @@ body {
   transform-style: preserve-3d;
 }
 
-/* Right leaf (letter) — always on the right half */
+/* Chunky pixel paper border helper */
+.pixel-paper {
+  border: 6px solid var(--edge);
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    inset 0 0 0 6px var(--edge),
+    6px 6px 0 #1a1008;
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
 .card-leaf--right {
   position: absolute;
   top: 0;
@@ -165,18 +186,25 @@ body {
   height: 100%;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(80, 50, 30, 0.12) 0, transparent 14px),
+    linear-gradient(90deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
+    repeating-linear-gradient(
+      90deg,
+      var(--paper) 0 3px,
+      var(--paper-2) 3px 6px
+    ),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
-  border: 3px solid var(--edge);
+  background-blend-mode: multiply, normal, normal;
+  border: 6px solid var(--edge);
   border-left: 0;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
-  padding: 1rem 1.1rem 1rem 1.35rem;
-  box-shadow: 8px 14px 28px rgba(0, 0, 0, 0.28);
+  padding: 20px 22px 20px 28px;
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    8px 8px 0 #1a1008;
 }
 
-/* Left leaf — hinged at spine (center); cover when closed, photo when open */
 .card-leaf--left {
   position: absolute;
   top: 0;
@@ -187,7 +215,6 @@ body {
   transform-origin: left center;
   transform-style: preserve-3d;
   transition: transform 0.9s cubic-bezier(0.4, 0.05, 0.2, 1);
-  border-radius: 6px 0 0 6px;
 }
 
 .greeting-card.is-open .card-leaf--left {
@@ -203,34 +230,44 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 3px solid var(--edge);
+  border: 6px solid var(--edge);
+  border-radius: 0;
 }
 
 .leaf-face--cover {
-  background: linear-gradient(165deg, #f3ebe0 0%, #e5d5c0 100%);
-  border-radius: 6px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #efe2cc 0 4px,
+      #e5d4b8 4px 8px
+    );
   z-index: 2;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    inset 0 0 0 6px var(--edge),
+    6px 6px 0 #1a1008;
 }
 
 .leaf-face--photo {
   background:
-    linear-gradient(270deg, rgba(80, 50, 30, 0.12) 0, transparent 14px),
+    linear-gradient(270deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
   border-right: 0;
-  border-radius: 6px 0 0 6px;
   transform: rotateY(180deg);
-  padding: 1rem;
-  gap: 0.45rem;
+  padding: 18px;
+  gap: 10px;
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    -4px 6px 0 #1a1008;
 }
 
-/* Spine crease when open — keep a clear fold-line feel */
+/* Spine crease */
 .greeting-card.is-open .greeting-card__book::before,
 .greeting-card.is-open .greeting-card__book::after {
   content: "";
   position: absolute;
-  top: 1.5%;
-  bottom: 1.5%;
+  top: 0;
+  bottom: 0;
   left: 50%;
   z-index: 6;
   pointer-events: none;
@@ -238,22 +275,22 @@ body {
 }
 
 .greeting-card.is-open .greeting-card__book::before {
-  width: 3px;
-  background: rgba(55, 32, 18, 0.38);
+  width: 4px;
+  background: #3a2418;
   box-shadow:
-    -1px 0 0 rgba(255, 250, 240, 0.35),
-    1px 0 0 rgba(40, 22, 12, 0.2);
+    -2px 0 0 rgba(255, 245, 220, 0.45),
+    2px 0 0 rgba(20, 10, 6, 0.35);
 }
 
 .greeting-card.is-open .greeting-card__book::after {
-  width: 28px;
+  width: 32px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(60, 35, 20, 0.1) 30%,
-    rgba(60, 35, 20, 0.32) 48%,
-    rgba(255, 255, 255, 0.28) 52%,
-    rgba(60, 35, 20, 0.16) 68%,
+    rgba(60, 35, 20, 0.12) 28%,
+    rgba(60, 35, 20, 0.36) 48%,
+    rgba(255, 255, 255, 0.3) 52%,
+    rgba(60, 35, 20, 0.18) 70%,
     transparent 100%
   );
 }
@@ -265,49 +302,48 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  padding: 1.2rem;
+  gap: 12px;
+  padding: 20px;
 }
 
 .cover-logo {
-  width: min(58%, 200px);
+  width: min(58%, 220px);
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.35));
 }
 
 .cover-title {
   margin: 0;
-  font-family: var(--card-en);
-  font-size: clamp(0.5rem, 1.8vw, 0.72rem);
-  letter-spacing: 0.04em;
+  font-family: var(--card-font);
+  font-size: 24px;
+  letter-spacing: 0.06em;
   text-align: center;
-  line-height: 1.45;
-  color: #5a3a28;
+  line-height: 1.25;
+  color: var(--ink);
 }
 
 .cover-sub {
   margin: 0;
-  font-size: 0.95rem;
-  color: #7a5640;
+  font-size: 20px;
+  color: #6a4530;
 }
 
 .cover-fold-hint {
-  margin: 0.4rem 0 0;
-  font-size: 0.72rem;
-  color: rgba(90, 58, 40, 0.65);
-  letter-spacing: 0.06em;
+  margin: 8px 0 0;
+  font-size: 16px;
+  color: rgba(90, 58, 40, 0.7);
 }
 
 .photo-frame {
   width: 88%;
   flex: 1;
   max-height: 78%;
-  border: 3px solid rgba(60, 40, 30, 0.28);
-  background: rgba(255, 255, 255, 0.4);
-  padding: 5px;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
+  border: 5px solid var(--edge);
+  background: #fff8ec;
+  padding: 4px;
+  box-shadow: inset 0 0 0 3px var(--edge-hi);
 }
 
 .photo-img {
@@ -321,30 +357,30 @@ body {
 
 .photo-caption {
   margin: 0;
-  font-size: 0.7rem;
-  opacity: 0.65;
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 .letter-sheet {
   flex: 1;
-  padding: 0.35rem 0.4rem;
+  padding: 4px 8px;
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
-    transparent 1.7rem,
-    rgba(80, 50, 40, 0.16) 1.7rem,
-    rgba(80, 50, 40, 0.16) calc(1.7rem + 1px)
+    transparent calc(var(--line) - 2px),
+    rgba(80, 50, 40, 0.22) calc(var(--line) - 2px),
+    rgba(80, 50, 40, 0.22) var(--line)
   );
-  background-position: 0 1.85rem;
+  background-position: 0 20px;
   overflow: auto;
 }
 
 .letter-line {
   margin: 0;
-  min-height: 1.7rem;
-  line-height: 1.7rem;
-  font-size: clamp(0.78rem, 1.5vw, 0.95rem);
-  letter-spacing: 0.03em;
+  min-height: var(--line);
+  line-height: var(--line);
+  font-size: var(--text);
+  letter-spacing: 0.04em;
   color: var(--ink);
 }
 
@@ -352,61 +388,78 @@ body {
   opacity: 0;
 }
 
-.card-deco {
+/* Stickers: centers sit on the outer card border */
+.card-stickers {
   position: absolute;
-  width: 34px;
-  height: 34px;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  z-index: 5;
+  inset: 0;
+  z-index: 8;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.35s ease 0.45s;
-  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.2));
+  transition: opacity 0.3s ease 0.4s;
 }
 
-.greeting-card.is-open .card-deco {
+.greeting-card.is-open .card-stickers {
   opacity: 1;
 }
 
-/* Icons stay on the right leaf (away from spine) for the basic layout pass */
-.card-deco--0 { top: 5%; right: 8%; }
-.card-deco--1 { top: 5%; right: 22%; }
-.card-deco--2 { bottom: 6%; right: 8%; }
-.card-deco--3 { bottom: 6%; right: 22%; }
-.card-deco--4 { top: 48%; right: 6%; width: 28px; height: 28px; }
+.card-deco {
+  position: absolute;
+  width: var(--sticker);
+  height: var(--sticker);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+}
 
-/* Keep theme skins minimal for layout review — soft paper only */
-.card-theme--bigcity,
-.card-theme--boutique,
-.card-theme--yakiniku {
-  /* themes deferred until layout is approved */
+/* Centers sit on the outer border → sticker pressed on the edge */
+.card-deco--0 {
+  top: 0;
+  left: 22%;
+  transform: translate(-50%, -50%);
+}
+.card-deco--1 {
+  top: 0;
+  left: 78%;
+  transform: translate(-50%, -50%);
+}
+.card-deco--2 {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+.card-deco--3 {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+.card-deco--4 {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
 }
 
 @media (max-width: 720px) {
   :root {
-    --open-w: min(94vw, 1200px);
-    --open-h: min(68vh, 720px);
+    --open-w: min(94vw, 1280px);
+    --open-h: min(68vh, 780px);
+    --sticker: 40px;
+    --text: 20px;
+    --line: 30px;
   }
 
   .cover-title {
-    font-size: 0.48rem;
+    font-size: 20px;
   }
 
-  .letter-line {
-    font-size: 0.72rem;
-  }
-
-  .card-deco {
-    width: 26px;
-    height: 26px;
+  .cover-sub {
+    font-size: 16px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .greeting-card,
   .card-leaf--left,
-  .card-deco {
+  .card-stickers {
     transition: none !important;
   }
 
