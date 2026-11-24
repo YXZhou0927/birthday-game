@@ -34,7 +34,7 @@ jobs:
       - name: Assemble site
         run: |
           mkdir _site
-          cp index.html style.css _site/
+          cp index.html style.css cards.html cards.css _site/
           cp -r js pixel scripts assets _site/
 
       - name: Upload artifact
