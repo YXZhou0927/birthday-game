@@ -66,7 +66,7 @@ function buildCard(data) {
         <div class="card-leaf card-leaf--left">
           <div class="leaf-face leaf-face--cover">
             <div class="cover-frame">
-              <img class="cover-logo" src="${data.cover}" alt="" draggable="false" />
+              <img class="cover-logo" src="${data.cover}?v=orig1" alt="" draggable="false" />
               <p class="cover-title">${escapeHtml(data.coverTitle)}</p>
               <p class="cover-sub">${escapeHtml(data.coverSub)}</p>
             </div>
