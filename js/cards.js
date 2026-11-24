@@ -67,7 +67,7 @@ function couponModalHtml() {
       <div class="coupon-card__copy">
         <p class="coupon-card__brand">Apple 兌換券</p>
         <p class="coupon-card__title" id="coupon-title">恭喜找到隱藏兌換券</p>
-        <p class="coupon-card__sub">趕快叫我帶她去吧</p>
+        <p class="coupon-card__sub">趕快跟他一起去買吧</p>
       </div>
     </div>
     <button type="button" class="coupon-modal__close" id="coupon-close">收起來</button>
@@ -94,6 +94,8 @@ function buildCard(data) {
     </button>
 
     <div class="greeting-card" id="greeting-card" role="button" tabindex="0" aria-expanded="false" aria-label="生日卡，點擊往左掀開">
+      <!-- Hidden under the open card; only a tiny corner peeks out -->
+      ${couponPeekHtml(data)}
       <div class="greeting-card__book">
         <!-- Right leaf: letter -->
         <div class="card-leaf card-leaf--right">
@@ -101,7 +103,6 @@ function buildCard(data) {
           <div class="letter-sheet">
             ${letterHtml(data.letter)}
           </div>
-          ${couponPeekHtml(data)}
         </div>
 
         <!-- Left leaf: cover front → flips left to show photo -->
