@@ -1,5 +1,8 @@
 import { CARDS, CARD_ORDER } from "./cards-data.js";
 
+const FLIP_MS = 900;
+const FLIP_MID_MS = 450;
+
 function $(sel, root = document) {
   return root.querySelector(sel);
 }
@@ -66,7 +69,6 @@ function buildCard(data) {
               <img class="cover-logo" src="${data.cover}" alt="" draggable="false" />
               <p class="cover-title">${escapeHtml(data.coverTitle)}</p>
               <p class="cover-sub">${escapeHtml(data.coverSub)}</p>
-              <p class="cover-fold-hint">左右對折 · 點擊掀開</p>
             </div>
           </div>
           <div class="leaf-face leaf-face--photo">
@@ -90,16 +92,32 @@ function mount(id) {
 
   const card = $("#greeting-card");
   const hint = $("#card-hint");
+  let flipTimer = 0;
 
   requestAnimationFrame(() => {
     card.classList.add("is-visible");
   });
 
   card.addEventListener("click", () => {
-    const open = card.classList.toggle("is-open");
-    card.setAttribute("aria-expanded", open ? "true" : "false");
-    if (hint) {
-      hint.textContent = open ? "再點一次可合上" : "點擊卡片往左掀開";
+    const opening = !card.classList.contains("is-open");
+    window.clearTimeout(flipTimer);
+
+    if (opening) {
+      card.classList.add("is-open");
+      card.setAttribute("aria-expanded", "true");
+      // Hide cover logo/title at flip midpoint
+      flipTimer = window.setTimeout(() => {
+        card.classList.add("is-cover-mid");
+      }, FLIP_MID_MS);
+      if (hint) hint.textContent = "再點一次可合上";
+    } else {
+      card.classList.remove("is-open");
+      card.setAttribute("aria-expanded", "false");
+      // Reveal cover logo/title at flip midpoint while closing
+      flipTimer = window.setTimeout(() => {
+        card.classList.remove("is-cover-mid");
+      }, FLIP_MID_MS);
+      if (hint) hint.textContent = "點擊卡片往左掀開";
     }
   });
 
@@ -108,6 +126,7 @@ function mount(id) {
       e.stopPropagation();
       const next = btn.getAttribute("data-goto");
       if (!next || next === id) return;
+      window.clearTimeout(flipTimer);
       setPage(next);
       mount(next);
     });
