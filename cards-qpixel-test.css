@@ -1,0 +1,66 @@
+/* Test-only overrides: left photo uses 3:4 Q-pixel frames (not square). */
+
+.card-theme--qpixel-test {
+  --paper: #fff4f0;
+  --paper-2: #f0ddd4;
+  --ink: #2a1810;
+  --ink-muted: #7a5040;
+  --edge: #8a5040;
+  --edge-hi: #f0d0c0;
+  --accent: #e07090;
+  --accent-2: #c09070;
+  --rule: rgba(120, 70, 50, 0.4);
+  --frame: #8a5040;
+  --frame-hi: #f0d0c0;
+  --frame-accent: #e07090;
+  --cover-stripe-a: #fff8f4;
+  --cover-stripe-b: #f8e8e0;
+  --nav-bg: #1a1210;
+  --nav-fg: #fff4f0;
+  --nav-border: #e07090;
+}
+
+.card-theme--qpixel-test .photo-frame {
+  /* Match source photo aspect 4284×5712 ≈ 3:4 */
+  width: min(72%, calc(var(--open-h) * 0.55));
+  aspect-ratio: 3 / 4;
+  max-height: min(88%, 100%);
+}
+
+.card-theme--qpixel-test .photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.qpixel-badge {
+  position: absolute;
+  left: 50%;
+  bottom: max(0.6rem, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 22;
+  margin: 0;
+  padding: 6px 10px;
+  background: #1a1210;
+  border: 3px solid #e07090;
+  color: #fff4f0;
+  font-family: var(--card-font);
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 2px 2px 0 #000;
+  pointer-events: none;
+}
+
+@media (max-width: 900px) {
+  .card-theme--qpixel-test .photo-frame {
+    width: min(70%, calc(var(--open-h) * 0.52));
+  }
+
+  .qpixel-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}
