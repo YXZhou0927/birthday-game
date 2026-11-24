@@ -54,6 +54,8 @@ function withTimeout(promise, ms) {
 }
 
 export async function unlockAudio() {
+  // Only run the unlock gesture once — repeating it pauses/resets BGM.
+  if (unlocked) return;
   unlocked = true;
   const el = ensureBgm();
   try {
@@ -103,6 +105,10 @@ export function setMuted(next) {
 
 export function isMuted() {
   return muted;
+}
+
+export function isBgmPlaying() {
+  return Boolean(bgmEl && currentKey && !bgmEl.paused);
 }
 
 /** Back-compat with engine imports. */
