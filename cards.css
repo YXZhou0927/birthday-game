@@ -1,6 +1,7 @@
 /* Basic greeting-card layout
  * Font: 俐方體11號 (Cubic 11) — sizes prefer multiples of 12px
  * Closed: portrait fold · Open: flip left to ~70% with spine crease
+ * Themes: Big City / Boutique / 燒肉 — colors, cover logo, inner frame
  */
 
 @font-face {
@@ -13,18 +14,93 @@
 
 :root {
   --card-font: "俐方體11號", "Cubic 11", sans-serif;
-  /* Open spread ~七成 */
   --open-w: min(80vw, 1280px);
   --open-h: min(74vh, 820px);
   --leaf-w: calc(var(--open-w) / 2);
+  --line: 36px;
+  --text: 24px;
+
+  /* Default theme tokens (overridden per .card-theme--*) */
   --paper: #f4ebd8;
   --paper-2: #e8d9c0;
   --ink: #2a1810;
+  --ink-muted: #6a4530;
   --edge: #5a3a24;
   --edge-hi: #d8c4a0;
-  --sticker: 52px;
-  --line: 36px; /* letter ruling = 3×12 for Cubic 11 */
-  --text: 24px;
+  --accent: #c45c48;
+  --accent-2: #3d6b4f;
+  --rule: rgba(80, 50, 40, 0.5);
+  --frame: #5a3a24;
+  --frame-hi: #d8c4a0;
+  --frame-accent: #c45c48;
+  --cover-stripe-a: #efe2cc;
+  --cover-stripe-b: #e5d4b8;
+  --nav-bg: #1a1210;
+  --nav-fg: #f6efe4;
+  --nav-border: #f0e2c8;
+}
+
+/* —— Big City：聖誕綠金紅 —— */
+.card-theme--bigcity {
+  --paper: #f3efe4;
+  --paper-2: #e4ecdf;
+  --ink: #1e2a22;
+  --ink-muted: #4a6354;
+  --edge: #2f5d3a;
+  --edge-hi: #f0d48a;
+  --accent: #c0392b;
+  --accent-2: #2f5d3a;
+  --rule: rgba(47, 93, 58, 0.4);
+  --frame: #2f5d3a;
+  --frame-hi: #f0d48a;
+  --frame-accent: #c0392b;
+  --cover-stripe-a: #eef5ea;
+  --cover-stripe-b: #e2ebdc;
+  --nav-bg: #1a261c;
+  --nav-fg: #f3efe4;
+  --nav-border: #f0d48a;
+}
+
+/* —— Boutique：粉紫奶油 —— */
+.card-theme--boutique {
+  --paper: #fff4f7;
+  --paper-2: #f5e4ef;
+  --ink: #4a2a3a;
+  --ink-muted: #8a5a72;
+  --edge: #c487a0;
+  --edge-hi: #ffe8f0;
+  --accent: #e8a0bc;
+  --accent-2: #8eb6d8;
+  --rule: rgba(196, 135, 160, 0.45);
+  --frame: #c487a0;
+  --frame-hi: #ffe8f0;
+  --frame-accent: #8eb6d8;
+  --cover-stripe-a: #fff7fb;
+  --cover-stripe-b: #fceaf2;
+  --nav-bg: #2a1822;
+  --nav-fg: #fff4f7;
+  --nav-border: #e8a0bc;
+}
+
+/* —— 燒肉：炭火暖橙 —— */
+.card-theme--yakiniku {
+  --paper: #f6e6d0;
+  --paper-2: #e8d0b0;
+  --ink: #2a160c;
+  --ink-muted: #7a4a28;
+  --edge: #6b3418;
+  --edge-hi: #f0c070;
+  --accent: #e07030;
+  --accent-2: #3a2418;
+  --rule: rgba(107, 52, 24, 0.45);
+  --frame: #6b3418;
+  --frame-hi: #f0c070;
+  --frame-accent: #e07030;
+  --cover-stripe-a: #f8ebd8;
+  --cover-stripe-b: #edd8bc;
+  --nav-bg: #1a1008;
+  --nav-fg: #f6e6d0;
+  --nav-border: #e07030;
 }
 
 * {
@@ -42,6 +118,19 @@ body {
   overflow: hidden;
   -webkit-font-smoothing: none;
   font-smooth: never;
+}
+
+.card-stage,
+.card-stage button,
+.card-stage p,
+.card-stage span,
+.card-nav__btn,
+.card-hint,
+.cover-title,
+.cover-sub,
+.cover-fold-hint,
+.letter-line {
+  font-family: var(--card-font) !important;
 }
 
 #cards-root {
@@ -86,8 +175,8 @@ body {
   display: flex;
   gap: 4px;
   padding: 4px;
-  background: #1a1210;
-  border: 4px solid #f0e2c8;
+  background: var(--nav-bg);
+  border: 4px solid var(--nav-border);
   box-shadow: 4px 4px 0 #000;
 }
 
@@ -97,15 +186,15 @@ body {
   cursor: pointer;
   padding: 8px 14px;
   background: transparent;
-  color: #f6efe4;
+  color: var(--nav-fg);
   font-family: var(--card-font);
   font-size: 16px;
   line-height: 1;
 }
 
 .card-nav__btn.is-active {
-  background: #f6efe4;
-  color: #2a1810;
+  background: var(--nav-fg);
+  color: var(--nav-bg);
 }
 
 .card-hint {
@@ -116,9 +205,9 @@ body {
   z-index: 20;
   margin: 0;
   padding: 8px 14px;
-  background: #1a1210;
-  border: 3px solid #f0e2c8;
-  color: #f6efe4;
+  background: var(--nav-bg);
+  border: 3px solid var(--nav-border);
+  color: var(--nav-fg);
   font-size: 16px;
   pointer-events: none;
   box-shadow: 3px 3px 0 #000;
@@ -167,17 +256,6 @@ body {
   transform-style: preserve-3d;
 }
 
-/* Chunky pixel paper border helper */
-.pixel-paper {
-  border: 6px solid var(--edge);
-  box-shadow:
-    inset 0 0 0 3px var(--edge-hi),
-    inset 0 0 0 6px var(--edge),
-    6px 6px 0 #1a1008;
-  border-radius: 0;
-  image-rendering: pixelated;
-}
-
 .card-leaf--right {
   position: absolute;
   top: 0;
@@ -186,20 +264,18 @@ body {
   height: 100%;
   z-index: 1;
   background:
-    linear-gradient(90deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
+    linear-gradient(90deg, rgba(40, 24, 16, 0.14) 0, transparent 16px),
     repeating-linear-gradient(
       90deg,
       var(--paper) 0 3px,
       var(--paper-2) 3px 6px
-    ),
-    linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
-  background-blend-mode: multiply, normal, normal;
+    );
   border: 6px solid var(--edge);
   border-left: 0;
   border-radius: 0;
   display: flex;
   flex-direction: column;
-  padding: 20px 22px 20px 28px;
+  padding: 22px 24px 22px 30px;
   box-shadow:
     inset 0 0 0 3px var(--edge-hi),
     8px 8px 0 #1a1008;
@@ -218,7 +294,7 @@ body {
 }
 
 .greeting-card.is-open .card-leaf--left {
-  transform: rotateY(-178deg);
+  transform: rotateY(-180deg);
 }
 
 .leaf-face {
@@ -238,27 +314,107 @@ body {
   background:
     repeating-linear-gradient(
       0deg,
-      #efe2cc 0 4px,
-      #e5d4b8 4px 8px
+      var(--cover-stripe-a) 0 4px,
+      var(--cover-stripe-b) 4px 8px
     );
   z-index: 2;
   box-shadow:
     inset 0 0 0 3px var(--edge-hi),
     inset 0 0 0 6px var(--edge),
     6px 6px 0 #1a1008;
+  visibility: visible;
+  transition: visibility 0s linear 0s;
+}
+
+.greeting-card.is-open .leaf-face--cover {
+  visibility: hidden;
+  pointer-events: none;
+  transition-delay: 0.9s;
 }
 
 .leaf-face--photo {
   background:
-    linear-gradient(270deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
+    linear-gradient(270deg, rgba(40, 24, 16, 0.14) 0, transparent 16px),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
   border-right: 0;
   transform: rotateY(180deg);
-  padding: 18px;
-  gap: 10px;
+  padding: 28px 24px 28px 28px;
   box-shadow:
     inset 0 0 0 3px var(--edge-hi),
     -4px 6px 0 #1a1008;
+}
+
+/* —— Inner page decorative frame (theme-colored) —— */
+.inner-frame {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+  z-index: 2;
+  border: 3px solid var(--frame);
+  box-shadow:
+    inset 0 0 0 3px var(--frame-hi),
+    inset 0 0 0 6px var(--frame-accent);
+}
+
+.inner-frame::before,
+.inner-frame::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--frame-accent);
+  box-shadow: 0 0 0 2px var(--frame);
+}
+
+.inner-frame::before {
+  top: -3px;
+  left: -3px;
+}
+
+.inner-frame::after {
+  bottom: -3px;
+  right: -3px;
+}
+
+/* Boutique: softer corner pips + dashed inner line feel */
+.card-theme--boutique .inner-frame {
+  border-style: solid;
+  border-width: 4px;
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 2px var(--frame-hi),
+    inset 0 0 0 5px var(--accent-2);
+}
+
+.card-theme--boutique .inner-frame::before,
+.card-theme--boutique .inner-frame::after {
+  width: 10px;
+  height: 10px;
+  background: var(--accent-2);
+}
+
+/* Big City: holly corner ticks */
+.card-theme--bigcity .inner-frame::before {
+  box-shadow:
+    0 0 0 2px var(--frame),
+    14px 0 0 var(--frame-accent),
+    0 14px 0 var(--frame-accent);
+}
+
+.card-theme--bigcity .inner-frame::after {
+  box-shadow:
+    0 0 0 2px var(--frame),
+    -14px 0 0 var(--frame-accent),
+    0 -14px 0 var(--frame-accent);
+}
+
+/* Yakiniku: thicker ember frame */
+.card-theme--yakiniku .inner-frame {
+  inset: 10px;
+  border-width: 4px;
+  box-shadow:
+    inset 0 0 0 3px var(--frame-hi),
+    inset 0 0 0 7px var(--frame-accent);
 }
 
 /* Spine crease */
@@ -276,9 +432,9 @@ body {
 
 .greeting-card.is-open .greeting-card__book::before {
   width: 4px;
-  background: #3a2418;
+  background: var(--edge);
   box-shadow:
-    -2px 0 0 rgba(255, 245, 220, 0.45),
+    -2px 0 0 rgba(255, 245, 220, 0.4),
     2px 0 0 rgba(20, 10, 6, 0.35);
 }
 
@@ -307,7 +463,7 @@ body {
 }
 
 .cover-logo {
-  width: min(58%, 220px);
+  width: min(62%, 240px);
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
@@ -316,150 +472,116 @@ body {
 
 .cover-title {
   margin: 0;
-  font-family: var(--card-font);
   font-size: 24px;
   letter-spacing: 0.06em;
   text-align: center;
-  line-height: 1.25;
+  line-height: 36px;
   color: var(--ink);
 }
 
 .cover-sub {
   margin: 0;
-  font-size: 20px;
-  color: #6a4530;
+  font-size: 24px;
+  line-height: 36px;
+  color: var(--ink-muted);
 }
 
 .cover-fold-hint {
   margin: 8px 0 0;
   font-size: 16px;
-  color: rgba(90, 58, 40, 0.7);
+  line-height: 24px;
+  color: var(--ink-muted);
+  opacity: 0.72;
 }
 
 .photo-frame {
+  position: relative;
+  z-index: 1;
   width: 88%;
   flex: 1;
-  max-height: 78%;
-  border: 5px solid var(--edge);
-  background: #fff8ec;
-  padding: 4px;
-  box-shadow: inset 0 0 0 3px var(--edge-hi);
+  max-height: 86%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 5px solid var(--frame);
+  background: var(--paper);
+  padding: 10px;
+  box-shadow:
+    inset 0 0 0 3px var(--frame-hi),
+    inset 0 0 0 6px var(--frame-accent);
 }
 
 .photo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   display: block;
 }
 
-.photo-caption {
-  margin: 0;
-  font-size: 16px;
-  opacity: 0.7;
-}
-
 .letter-sheet {
+  position: relative;
+  z-index: 1;
   flex: 1;
-  padding: 4px 8px;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent calc(var(--line) - 2px),
-    rgba(80, 50, 40, 0.22) calc(var(--line) - 2px),
-    rgba(80, 50, 40, 0.22) var(--line)
-  );
-  background-position: 0 20px;
+  padding: 8px 4px;
   overflow: auto;
+  background: transparent;
 }
 
 .letter-line {
   margin: 0;
-  min-height: var(--line);
+  padding: 0;
+  height: var(--line);
   line-height: var(--line);
   font-size: var(--text);
   letter-spacing: 0.04em;
   color: var(--ink);
+  background-image: linear-gradient(
+    to top,
+    var(--rule) 0,
+    var(--rule) 3px,
+    transparent 3px
+  );
+  background-size: 100% var(--line);
+  background-repeat: repeat-y;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .letter-line--blank {
-  opacity: 0;
-}
-
-/* Stickers: centers sit on the outer card border */
-.card-stickers {
-  position: absolute;
-  inset: 0;
-  z-index: 8;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease 0.4s;
-}
-
-.greeting-card.is-open .card-stickers {
-  opacity: 1;
-}
-
-.card-deco {
-  position: absolute;
-  width: var(--sticker);
-  height: var(--sticker);
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
-}
-
-/* Centers sit on the outer border → sticker pressed on the edge */
-.card-deco--0 {
-  top: 0;
-  left: 22%;
-  transform: translate(-50%, -50%);
-}
-.card-deco--1 {
-  top: 0;
-  left: 78%;
-  transform: translate(-50%, -50%);
-}
-.card-deco--2 {
-  top: 50%;
-  left: 0;
-  transform: translate(-50%, -50%);
-}
-.card-deco--3 {
-  bottom: 0;
-  left: 50%;
-  transform: translate(-50%, 50%);
-}
-.card-deco--4 {
-  top: 50%;
-  right: 0;
-  transform: translate(50%, -50%);
+  color: transparent;
 }
 
 @media (max-width: 720px) {
   :root {
     --open-w: min(94vw, 1280px);
     --open-h: min(68vh, 780px);
-    --sticker: 40px;
     --text: 20px;
     --line: 30px;
   }
 
-  .cover-title {
+  .cover-title,
+  .cover-sub {
     font-size: 20px;
+    line-height: 30px;
   }
 
-  .cover-sub {
-    font-size: 16px;
+  .card-leaf--right,
+  .leaf-face--photo {
+    padding: 16px;
+  }
+
+  .inner-frame {
+    inset: 8px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .greeting-card,
-  .card-leaf--left,
-  .card-stickers {
+  .card-leaf--left {
     transition: none !important;
   }
 

@@ -33,15 +33,6 @@ function escapeHtml(s) {
     .replaceAll('"', "&quot;");
 }
 
-function iconsHtml(urls) {
-  return urls
-    .map(
-      (src, i) =>
-        `<img class="card-deco card-deco--${i}" src="${src}" alt="" draggable="false" />`
-    )
-    .join("");
-}
-
 function buildCard(data) {
   return `
   <div class="card-stage ${data.themeClass}" data-card-id="${data.id}">
@@ -56,15 +47,13 @@ function buildCard(data) {
       }).join("")}
     </nav>
 
-    <p class="card-hint" id="card-hint">點擊卡片往左掀開 ✦</p>
+    <p class="card-hint" id="card-hint">點擊卡片往左掀開</p>
 
     <button type="button" class="greeting-card" id="greeting-card" aria-expanded="false" aria-label="生日卡，點擊往左掀開">
       <div class="greeting-card__book">
-        <!-- Stickers sit on the outer card edge (centers on border) -->
-        <div class="card-stickers" aria-hidden="true">${iconsHtml(data.icons)}</div>
-
         <!-- Right leaf: letter -->
         <div class="card-leaf card-leaf--right">
+          <div class="inner-frame" aria-hidden="true"></div>
           <div class="letter-sheet">
             ${letterHtml(data.letter)}
           </div>
@@ -81,10 +70,10 @@ function buildCard(data) {
             </div>
           </div>
           <div class="leaf-face leaf-face--photo">
+            <div class="inner-frame" aria-hidden="true"></div>
             <div class="photo-frame">
               <img class="photo-img" src="${data.photo}" alt="卡片照片" draggable="false" />
             </div>
-            <p class="photo-caption">${escapeHtml(data.photoCaption)}</p>
           </div>
         </div>
       </div>
@@ -110,7 +99,7 @@ function mount(id) {
     const open = card.classList.toggle("is-open");
     card.setAttribute("aria-expanded", open ? "true" : "false");
     if (hint) {
-      hint.textContent = open ? "再點一次可合上 ✦" : "點擊卡片往左掀開 ✦";
+      hint.textContent = open ? "再點一次可合上" : "點擊卡片往左掀開";
     }
   });
 
