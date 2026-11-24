@@ -1,8 +1,26 @@
-# Ann Birthday Game 2026
+# Ann Birthday 2026
 
-NFC 觸發的實境生日冒險。旁白來自「30 年後」的視角（結尾才揭曉），帶領安安走過今年生日的巨城 → 燒肉 → 清大階梯，蒐集四片愛心。
+方向已調整為 **場景背景 + Q 版像素電子生日卡**（不再以遊玩關卡為主）。
 
-線上試玩：https://yxzhou0927.github.io/birthday-game/?skipGps=1
+## 電子卡片（預設）
+
+開啟根目錄或 `cards.html`：場景當背景，右側浮入對折卡片；點擊向左翻開。
+
+| page | 主題 |
+| --- | --- |
+| `big-city` | 聖誕巨城：花圈封面、香水／口紅／包／項鍊／戒指標 |
+| `boutique` | Boutique：大耳狗封面、大耳狗／Labubu／Jellycat 點綴 |
+| `restaurant` | 燒肉：香氣封面、烤肉串／肉片／夾子點綴 |
+
+例：`cards.html?page=big-city`
+
+左側照片暫用 `pixel/`（也可換 `assets/art/cards/photos/`）；右側為信紙橫線 + DotGothic16 像素中文字型範本。
+
+## 舊版遊戲（可選）
+
+NFC 關卡流程仍可用：`?mode=game&level=prologue&skipGps=1`
+
+線上：https://yxzhou0927.github.io/birthday-game/
 
 ## 關卡（NFC 可各寫一張）
 

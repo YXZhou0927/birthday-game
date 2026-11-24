@@ -1,0 +1,470 @@
+/* Basic greeting-card layout
+ * Font: 俐方體11號 (Cubic 11) — sizes prefer multiples of 12px
+ * Closed: portrait fold · Open: flip left to ~70% with spine crease
+ */
+
+@font-face {
+  font-family: "俐方體11號";
+  src: url("assets/fonts/cubic-11/Cubic_11.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --card-font: "俐方體11號", "Cubic 11", sans-serif;
+  /* Open spread ~七成 */
+  --open-w: min(80vw, 1280px);
+  --open-h: min(74vh, 820px);
+  --leaf-w: calc(var(--open-w) / 2);
+  --paper: #f4ebd8;
+  --paper-2: #e8d9c0;
+  --ink: #2a1810;
+  --edge: #5a3a24;
+  --edge-hi: #d8c4a0;
+  --sticker: 52px;
+  --line: 36px; /* letter ruling = 3×12 for Cubic 11 */
+  --text: 24px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: #120e0c;
+  color: var(--ink);
+  font-family: var(--card-font);
+  font-size: var(--text);
+  overflow: hidden;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+#cards-root {
+  height: 100%;
+}
+
+.card-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.card-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  z-index: 0;
+}
+
+.card-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(10, 8, 12, 0.28);
+}
+
+.card-nav {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #1a1210;
+  border: 4px solid #f0e2c8;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.card-nav__btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: 8px 14px;
+  background: transparent;
+  color: #f6efe4;
+  font-family: var(--card-font);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.card-nav__btn.is-active {
+  background: #f6efe4;
+  color: #2a1810;
+}
+
+.card-hint {
+  position: absolute;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  margin: 0;
+  padding: 8px 14px;
+  background: #1a1210;
+  border: 3px solid #f0e2c8;
+  color: #f6efe4;
+  font-size: 16px;
+  pointer-events: none;
+  box-shadow: 3px 3px 0 #000;
+}
+
+/* —— shell —— */
+.greeting-card {
+  position: relative;
+  z-index: 5;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  width: var(--leaf-w);
+  height: var(--open-h);
+  perspective: 2200px;
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: 8px 10px 0 rgba(0, 0, 0, 0.55);
+  transform: translateX(120%);
+  opacity: 0;
+  transition:
+    width 0.85s cubic-bezier(0.4, 0.05, 0.2, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.55s ease,
+    box-shadow 0.85s ease;
+}
+
+.greeting-card.is-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.greeting-card.is-open {
+  width: var(--open-w);
+  overflow: visible;
+  box-shadow: none;
+}
+
+.greeting-card__book {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--open-w);
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Chunky pixel paper border helper */
+.pixel-paper {
+  border: 6px solid var(--edge);
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    inset 0 0 0 6px var(--edge),
+    6px 6px 0 #1a1008;
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+.card-leaf--right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--leaf-w);
+  height: 100%;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
+    repeating-linear-gradient(
+      90deg,
+      var(--paper) 0 3px,
+      var(--paper-2) 3px 6px
+    ),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+  background-blend-mode: multiply, normal, normal;
+  border: 6px solid var(--edge);
+  border-left: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 22px 20px 28px;
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    8px 8px 0 #1a1008;
+}
+
+.card-leaf--left {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--leaf-w);
+  height: 100%;
+  z-index: 3;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0.05, 0.2, 1);
+}
+
+.greeting-card.is-open .card-leaf--left {
+  transform: rotateY(-178deg);
+}
+
+.leaf-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 6px solid var(--edge);
+  border-radius: 0;
+}
+
+.leaf-face--cover {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #efe2cc 0 4px,
+      #e5d4b8 4px 8px
+    );
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    inset 0 0 0 6px var(--edge),
+    6px 6px 0 #1a1008;
+}
+
+.leaf-face--photo {
+  background:
+    linear-gradient(270deg, rgba(60, 35, 20, 0.16) 0, transparent 16px),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+  border-right: 0;
+  transform: rotateY(180deg);
+  padding: 18px;
+  gap: 10px;
+  box-shadow:
+    inset 0 0 0 3px var(--edge-hi),
+    -4px 6px 0 #1a1008;
+}
+
+/* Spine crease */
+.greeting-card.is-open .greeting-card__book::before,
+.greeting-card.is-open .greeting-card__book::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: 6;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.greeting-card.is-open .greeting-card__book::before {
+  width: 4px;
+  background: #3a2418;
+  box-shadow:
+    -2px 0 0 rgba(255, 245, 220, 0.45),
+    2px 0 0 rgba(20, 10, 6, 0.35);
+}
+
+.greeting-card.is-open .greeting-card__book::after {
+  width: 32px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(60, 35, 20, 0.12) 28%,
+    rgba(60, 35, 20, 0.36) 48%,
+    rgba(255, 255, 255, 0.3) 52%,
+    rgba(60, 35, 20, 0.18) 70%,
+    transparent 100%
+  );
+}
+
+.cover-frame {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+}
+
+.cover-logo {
+  width: min(58%, 220px);
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(3px 3px 0 rgba(0, 0, 0, 0.35));
+}
+
+.cover-title {
+  margin: 0;
+  font-family: var(--card-font);
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  text-align: center;
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.cover-sub {
+  margin: 0;
+  font-size: 20px;
+  color: #6a4530;
+}
+
+.cover-fold-hint {
+  margin: 8px 0 0;
+  font-size: 16px;
+  color: rgba(90, 58, 40, 0.7);
+}
+
+.photo-frame {
+  width: 88%;
+  flex: 1;
+  max-height: 78%;
+  border: 5px solid var(--edge);
+  background: #fff8ec;
+  padding: 4px;
+  box-shadow: inset 0 0 0 3px var(--edge-hi);
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
+
+.photo-caption {
+  margin: 0;
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.letter-sheet {
+  flex: 1;
+  padding: 4px 8px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--line) - 2px),
+    rgba(80, 50, 40, 0.22) calc(var(--line) - 2px),
+    rgba(80, 50, 40, 0.22) var(--line)
+  );
+  background-position: 0 20px;
+  overflow: auto;
+}
+
+.letter-line {
+  margin: 0;
+  min-height: var(--line);
+  line-height: var(--line);
+  font-size: var(--text);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.letter-line--blank {
+  opacity: 0;
+}
+
+/* Stickers: centers sit on the outer card border */
+.card-stickers {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.4s;
+}
+
+.greeting-card.is-open .card-stickers {
+  opacity: 1;
+}
+
+.card-deco {
+  position: absolute;
+  width: var(--sticker);
+  height: var(--sticker);
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, 0.35));
+}
+
+/* Centers sit on the outer border → sticker pressed on the edge */
+.card-deco--0 {
+  top: 0;
+  left: 22%;
+  transform: translate(-50%, -50%);
+}
+.card-deco--1 {
+  top: 0;
+  left: 78%;
+  transform: translate(-50%, -50%);
+}
+.card-deco--2 {
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+}
+.card-deco--3 {
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%, 50%);
+}
+.card-deco--4 {
+  top: 50%;
+  right: 0;
+  transform: translate(50%, -50%);
+}
+
+@media (max-width: 720px) {
+  :root {
+    --open-w: min(94vw, 1280px);
+    --open-h: min(68vh, 780px);
+    --sticker: 40px;
+    --text: 20px;
+    --line: 30px;
+  }
+
+  .cover-title {
+    font-size: 20px;
+  }
+
+  .cover-sub {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .greeting-card,
+  .card-leaf--left,
+  .card-stickers {
+    transition: none !important;
+  }
+
+  .greeting-card {
+    transform: none;
+    opacity: 1;
+  }
+}

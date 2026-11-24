@@ -18,6 +18,18 @@ function readFlags() {
 }
 
 async function boot() {
+  const params = new URLSearchParams(window.location.search);
+  const wantsGame =
+    params.get("mode") === "game" ||
+    params.has("level") ||
+    params.has("l") ||
+    Boolean(window.location.hash.replace(/^#/, ""));
+  // New default experience: foldable greeting cards (not a game).
+  if (!wantsGame) {
+    window.location.replace(`cards.html${window.location.search}`);
+    return;
+  }
+
   const { level, debug, skipGps } = readFlags();
   const script = resolveLevel(level);
 
